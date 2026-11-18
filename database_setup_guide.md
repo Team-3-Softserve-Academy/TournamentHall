@@ -1,6 +1,6 @@
 # Database Configuration & Initialization
 
-This document explains the requirements, connection parameters, and execution process for initializing the database schema using `models.py`, `database_access.py`, and the automated Vagrant provisioning script `init.sh`. It also covers essential database-level security configurations.
+This document explains the requirements, connection parameters, and execution process for initializing the database using `init_db.sh` (on the DB VM) and creating the schema using `configure_db.sh` / `models.py` (on the App VM). It also covers essential database-level security configurations.
 
 ## 1. Core Prerequisites
 
@@ -35,32 +35,33 @@ pip install SQLAlchemy psycopg2-binary python-dotenv
 
 ### URI Format
 ```
-dialect+driver://DB_USER:DB_PASSWORD@127.0.0.1:DB_PORT/DB_NAME
+dialect+driver://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME
 ```
 
 ### Parameter Breakdown
 
 | Variable / Parameter | Purpose | Example Value |
 | :--- | :--- | :--- |
-| **`dialect+driver`** | Defines the database type and Python driver. | `postgresql` |
+| **`dialect+driver`** | Defines the database type and Python driver. | `postgresql+psycopg2` |
 | **`DB_USER`** | The PostgreSQL role used to authenticate. | `postgresql` |
 | **`DB_PASSWORD`** | The password for the specified PostgreSQL role. | `postgresql` |
+| **`DB_HOST`** | The private IP address of the PostgreSQL DB VM. | `192.168.56.64` |
 | **`DB_PORT`** | The TCP port the PostgreSQL server listens on. | `5432` |
 | **`DB_NAME`** | The target database name. | `tournament_db` |
-| **`ALLOWED_IPS`** | Comma-separated list of IPs for `listen_addresses`. | `"192.168.50.10, 192.168.50.11"` |
+| **`ALLOWED_IPS`** | Space-separated list of App VM IPs allowed in `pg_hba.conf`. | `"192.168.56.16 192.168.56.32"` |
 
 ### Example `.env` / `.env.example`
 ```env
 DB_USER=postgresql
 DB_PASSWORD=postgresql
+DB_HOST=192.168.56.64
 DB_PORT=5432
 DB_NAME=tournament_db
 
-# Server IPs allowed to connect to PostgreSQL
-# Example: ALLOWED_IPS="192.168.50.10, 192.168.50.11"
-ALLOWED_IPS=
+# Application server IPs allowed to connect to PostgreSQL (space-separated)
+ALLOWED_IPS="192.168.56.16 192.168.56.32"
 ```
-*(resulting URI: `postgresql+psycopg2://postgresql:postgresql@127.0.0.1:5432/tournament_db`)*
+*(resulting URI: `postgresql+psycopg2://postgresql:postgresql@192.168.56.64:5432/tournament_db`)*
 
 ## 4. Schema Initialization (`models.py`)
 
@@ -93,49 +94,67 @@ sudo -u postgres psql -c "ALTER ROLE postgresql WITH NOSUPERUSER NOCREATEDB NOCR
 ```
 
 **Step 2: Bind to Specific Network Interfaces**
-Configure PostgreSQL to listen only on the local interface and the specific private IP of the DB node (do not use `*`).
+Configure PostgreSQL to listen only on the local interface and the specific private IP of the DB node (`DB_HOST`, do not use `*`).
 ```bash
-sudo -u postgres psql -c "ALTER SYSTEM SET listen_addresses = '127.0.0.1, 192.168.50.14';"
+sudo -u postgres psql -c "ALTER SYSTEM SET listen_addresses = '127.0.0.1, 192.168.56.64';"
 ```
 
-**Step 3: Apply Changes**
-Restart the PostgreSQL service to load the new network bindings.
+**Step 3: Configure the Internal Firewall (`pg_hba.conf`)**
+Allow connections to `tournament_db` as `postgresql` only from the specific App node IPs (`ALLOWED_IPS`) using `scram-sha-256`.
+```bash
+PG_HBA=$(sudo -u postgres psql -t -P format=unaligned -c 'show hba_file')
+for IP in 192.168.56.16 192.168.56.32; do
+    echo "host tournament_db postgresql ${IP}/32 scram-sha-256" | sudo tee -a "$PG_HBA"
+done
+```
+
+**Step 4: Apply Changes**
+Restart the PostgreSQL service to load the new network bindings and HBA rules.
 ```bash
 sudo systemctl restart postgresql
 ```
 
 ## 6. Full End-to-End Setup Example
 
-Here is a complete sequence of terminal commands to initialize and secure the database from scratch.
-
+### Part A: On the DB VM (`init_db.sh`)
 ```bash
-# 1. Start PostgreSQL service
+# 1. Install and start PostgreSQL service
+sudo apt-get update
+sudo apt-get install -y postgresql postgresql-contrib
 sudo systemctl start postgresql
 
 # 2. Create the target database and restricted user
 sudo -u postgres psql -c "CREATE USER postgresql WITH PASSWORD 'postgresql';"
 sudo -u postgres psql -c "CREATE DATABASE tournament_db OWNER postgresql;"
 
-# 3. Apply Security Hardening (Limits & Network bindings)
+# 3. Apply Security Hardening (Limits, Network bindings & pg_hba.conf)
 sudo -u postgres psql -c "ALTER ROLE postgresql WITH NOSUPERUSER NOCREATEDB NOCREATEROLE CONNECTION LIMIT 50;"
-sudo -u postgres psql -c "ALTER SYSTEM SET listen_addresses = '127.0.0.1, 192.168.50.14';"
+sudo -u postgres psql -c "ALTER SYSTEM SET listen_addresses = '127.0.0.1, 192.168.56.64';"
+PG_HBA=$(sudo -u postgres psql -t -P format=unaligned -c 'show hba_file')
+for IP in 192.168.56.16 192.168.56.32; do
+    echo "host tournament_db postgresql ${IP}/32 scram-sha-256" | sudo tee -a "$PG_HBA"
+done
 sudo systemctl restart postgresql
+```
 
-# 4. Setup Python Environment & Initialize Schema
+### Part B: On the App VM (`configure_db.sh`)
+```bash
+# 1. Install Python environment tools
+sudo apt-get update
+sudo apt-get install -y python3-venv python3-pip
+
+# 2. Setup virtual environment and install dependencies
 python3 -m venv venv
 source venv/bin/activate
 pip install SQLAlchemy psycopg2-binary python-dotenv
-python3 models.py
 
-# 5. Clean up temporary Python environment and packages
-deactivate
-rm -rf venv
-sudo apt-get remove --purge -y python3-venv python3-pip
-sudo apt-get autoremove -y
+# 3. Initialize schema creating tables in the remote database
+python3 models.py
 ```
 
-### Automated Vagrant Setup (`init.sh`)
-To automate all steps above on an Ubuntu Server VM in Vagrant, add `init.sh` to your `Vagrantfile` (it automatically reads parameters from `.env` or `.env.example`):
+### Automated Vagrant Setup (`init_db.sh` & `configure_db.sh`)
+To automate provisioning in your `Vagrantfile`, run `init_db.sh` on the `database` VM and `configure_db.sh` on the application VM:
 ```ruby
-config.vm.provision "shell", path: "init.sh"
+database.vm.provision "shell", path: "init_db.sh"
+app01.vm.provision "shell", path: "configure_db.sh"
 ```
