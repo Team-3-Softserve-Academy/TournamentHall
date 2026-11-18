@@ -60,7 +60,7 @@ DB_NAME=tournament_db
 # Example: ALLOWED_IPS="192.168.50.10, 192.168.50.11"
 ALLOWED_IPS=
 ```
-*(resulting URI: `postgresql://postgresql:postgresql@127.0.0.1:5432/tournament_db`)*
+*(resulting URI: `postgresql+psycopg2://postgresql:postgresql@127.0.0.1:5432/tournament_db`)*
 
 ## 4. Schema Initialization (`models.py`)
 
