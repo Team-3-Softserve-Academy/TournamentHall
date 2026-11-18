@@ -1,4 +1,4 @@
-from database import CommonFolk
+from models import CommonFolk
 
 class CommonFolkRepository:
     def __init__(self, db_session):

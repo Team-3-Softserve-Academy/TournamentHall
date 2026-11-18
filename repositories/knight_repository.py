@@ -1,11 +1,31 @@
-from database import Knight
+from datetime import datetime
+from models import Knight
 
 class KnightRepository:
     def __init__(self, db_session):
         self.session = db_session
 
-    def create_knight(self, name: str, photo_url: str = None, strength: int = None, speed: int = None, protection: int = None, home: str = None):
-        knight = Knight(name=name, photo_url=photo_url, strength=strength, speed=speed, protection=protection, home=home)
+    def create_knight(
+        self,
+        name: str,
+        image_url: str = None,
+        strength: int = None,
+        speed: int = None,
+        protection: int = None,
+        house: str = None,
+        key: str = None,
+        key_last_used: datetime = None
+    ):
+        knight = Knight(
+            name=name,
+            image_url=image_url,
+            strength=strength,
+            speed=speed,
+            protection=protection,
+            house=house,
+            key=key,
+            key_last_used=key_last_used
+        )
         self.session.add(knight)
         self.session.commit()
         return knight
@@ -38,4 +58,4 @@ class KnightRepository:
             return None
 
         offset = (page - 1) * page_size
-        return self.session.query(Knight).order_by(Knight.name.asc(), Knight.id.asc()).limit(page_size).offset(offset).all()
+        return self.session.query(Knight).order_by(Knight.name, Knight.id).limit(page_size).offset(offset).all()

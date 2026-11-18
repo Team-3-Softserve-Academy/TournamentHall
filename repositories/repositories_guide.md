@@ -10,7 +10,9 @@ Before using any repository, you must obtain a database session from `database_a
 
 ```python
 from database_access import get_session
-from repositories import LordRepository, KnightRepository, CommonFolkRepository
+from repositories.lord_repository import LordRepository
+from repositories.knight_repository import KnightRepository
+from repositories.common_folk_repository import CommonFolkRepository
 
 # 1. Open a new session for the current request/operation
 session = get_session()
@@ -31,15 +33,21 @@ The `create_*` methods instantiate the models, add them to the session, and comm
 
 ```python
 # Create a Lord
-ned_stark = lord_repo.create_lord(name="Eddard Stark", photo_url="https://example.com/ned.jpg")
+ned_stark = lord_repo.create_lord(
+    name="Eddard Stark",
+    image_url="https://example.com/ned.jpg",
+    house="Stark"
+)
 
 # Create a Knight
 arthur = knight_repo.create_knight(
     name="Arthur Pendragon", 
-    strength=95, 
-    speed=85, 
-    protection=90, 
-    home="Camelot"
+    image_url="https://example.com/arthur.jpg",
+    strength=18, 
+    speed=15, 
+    protection=17, 
+    house="Pendragon",
+    key="knight_secret_key"
 )
 
 # Create a CommonFolk
@@ -67,14 +75,16 @@ page_1 = knight_repo.get_knights_paginated(page=1, page_size=10)
 The `update_*` methods accept keyword arguments (`**kwargs`). You only need to pass the fields you want to change.
 
 ```python
-# 1. Partial Update: Change only speed and strength
-knight_repo.update_knight(arthur.id, speed=100, strength=99)
+from datetime import datetime
 
-# 2. Set to NULL: Remove the home location
-knight_repo.update_knight(arthur.id, home=None)
+# 1. Partial Update: Change speed, strength, and key_last_used
+knight_repo.update_knight(arthur.id, speed=20, strength=19, key_last_used=datetime.now())
+
+# 2. Set to NULL: Remove the house
+knight_repo.update_knight(arthur.id, house=None)
 
 # 3. Update Lord
-lord_repo.update_lord(ned_stark.id, photo_url="https://example.com/new_ned.jpg")
+lord_repo.update_lord(ned_stark.id, image_url="https://example.com/new_ned.jpg", house="Stark of Winterfell")
 ```
 
 ## 5. Deleting Records (Delete)

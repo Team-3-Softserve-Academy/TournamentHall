@@ -1,11 +1,11 @@
-from database import Lord, Knight, CommonFolk
+from models import Lord
 
 class LordRepository:
     def __init__(self, db_session):
         self.session = db_session
 
-    def create_lord(self, name: str, photo_url: str = None):
-        lord = Lord(name=name, photo_url=photo_url)
+    def create_lord(self, name: str, image_url: str = None, house: str = None):
+        lord = Lord(name=name, image_url=image_url, house=house)
         self.session.add(lord)
         self.session.commit()
         return lord
@@ -31,12 +31,12 @@ class LordRepository:
         return False
 
     def get_all_lords(self):
-        return self.session.query(Lord).order_by(Lord.name.asc(), Lord.id.asc()).all()
+        return self.session.query(Lord).order_by(Lord.name, Lord.id).all()
 
     def get_lords_paginated(self, page: int, page_size: int):
         if(page < 1 or page_size < 1):
             return None
 
         offset = (page - 1) * page_size
-        return self.session.query(Lord).order_by(Lord.name.asc(), Lord.id.asc()).limit(page_size).offset(offset).all()
+        return self.session.query(Lord).order_by(Lord.name, Lord.id).limit(page_size).offset(offset).all()
 
