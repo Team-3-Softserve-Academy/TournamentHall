@@ -10,8 +10,6 @@ Vagrant.configure("2") do |config|
 
     nginx.vm.synced_folder "./nginx", "/home/vagrant/nginx"
 
-    nginx.vm.synced_folder "./provisioning", "/home/vagrant/provisioning" 
-
     nginx.vm.provision "shell", path: "./provisioning/nginx.sh"
 
     nginx.vm.provider "virtualbox" do |vb|
