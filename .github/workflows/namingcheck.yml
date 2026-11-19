@@ -1,4 +1,4 @@
-name: "Check PR Title"
+name: "Check PR Titles and Branch Names"
 
 on:
   pull_request:
@@ -15,7 +15,6 @@ jobs:
             exit 1
           fi
           
-name: "Check Branch Name"
 on:
   create:
     branches:
