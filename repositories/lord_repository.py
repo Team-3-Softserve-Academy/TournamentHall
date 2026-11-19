@@ -4,14 +4,17 @@ class LordRepository:
     def __init__(self, db_session):
         self.session = db_session
 
-    def create_lord(self, name: str, image_url: str = None, house: str = None):
-        lord = Lord(name=name, image_url=image_url, house=house)
+    def create_lord(self, name: str, login: str, password_hash: str, image_url: str = None, house: str = None):
+        lord = Lord(name=name, login=login, password_hash=password_hash, image_url=image_url, house=house)
         self.session.add(lord)
         self.session.commit()
         return lord
 
     def get_lord_by_id(self, lord_id: int):
         return self.session.query(Lord).filter(Lord.id == lord_id).first()
+
+    def get_lord_by_login(self, login: str):
+        return self.session.query(Lord).filter(Lord.login == login).first()
 
     def update_lord(self, lord_id: int, **kwargs):
         lord = self.get_lord_by_id(lord_id)

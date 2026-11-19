@@ -8,6 +8,8 @@ class KnightRepository:
     def create_knight(
         self,
         name: str,
+        login: str,
+        password_hash: str,
         image_url: str = None,
         strength: int = None,
         speed: int = None,
@@ -18,6 +20,8 @@ class KnightRepository:
     ):
         knight = Knight(
             name=name,
+            login=login,
+            password_hash=password_hash,
             image_url=image_url,
             strength=strength,
             speed=speed,
@@ -32,6 +36,9 @@ class KnightRepository:
 
     def get_knight_by_id(self, knight_id: int):
         return self.session.query(Knight).filter(Knight.id == knight_id).first()
+
+    def get_knight_by_login(self, login: str):
+        return self.session.query(Knight).filter(Knight.login == login).first()
 
     def update_knight(self, knight_id: int, **kwargs):
         knight = self.get_knight_by_id(knight_id)

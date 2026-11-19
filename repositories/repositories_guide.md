@@ -35,13 +35,17 @@ The `create_*` methods instantiate the models, add them to the session, and comm
 # Create a Lord
 ned_stark = lord_repo.create_lord(
     name="Eddard Stark",
+    login="ned_stark",
+    password_hash="hashed_password_123",
     image_url="https://example.com/ned.jpg",
     house="Stark"
 )
 
 # Create a Knight
 arthur = knight_repo.create_knight(
-    name="Arthur Pendragon", 
+    name="Arthur Pendragon",
+    login="arthur_pendragon",
+    password_hash="hashed_password_456",
     image_url="https://example.com/arthur.jpg",
     strength=18, 
     speed=15, 
@@ -51,16 +55,24 @@ arthur = knight_repo.create_knight(
 )
 
 # Create a CommonFolk
-smith = folk_repo.create_commonfolk(name="Will the Smith")
+smith = folk_repo.create_commonfolk(
+    name="Will the Smith",
+    login="will_smith",
+    password_hash="hashed_password_789"
+)
 ```
 
 ## 3. Reading Records (Read)
-You can fetch records by their primary key (ID), retrieve all records, or use pagination. 
+You can fetch records by their primary key (ID), by login, retrieve all records, or use pagination. 
 
 ```python
 # Get by ID
 target_knight = knight_repo.get_knight_by_id(arthur.id)
 print(target_knight.name)
+
+# Get by Login
+knight_by_login = knight_repo.get_knight_by_login("arthur_pendragon")
+print(knight_by_login.name)
 
 # Get All (Lords and Knights only)
 all_lords = lord_repo.get_all_lords()

@@ -8,9 +8,9 @@ else
     source .env.example
 fi
 
-# Install PostgreSQL & Python packages
+# Install PostgreSQL packages
 sudo apt-get update
-sudo apt-get install -y postgresql postgresql-contrib python3-venv python3-pip
+sudo apt-get install -y postgresql postgresql-contrib
 
 # Start PostgreSQL
 sudo systemctl start postgresql
@@ -28,3 +28,6 @@ for IP in ${ALLOWED_IPS} ${DB_HOST}; do
     echo "host ${DB_NAME} ${DB_USER} ${IP}/32 scram-sha-256" | sudo tee -a "$PG_HBA"
 done
 sudo systemctl restart postgresql
+
+
+

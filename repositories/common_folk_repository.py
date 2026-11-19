@@ -4,14 +4,17 @@ class CommonFolkRepository:
     def __init__(self, db_session):
         self.session = db_session
 
-    def create_commonfolk(self, name: str):
-        folk = CommonFolk(name=name)
+    def create_commonfolk(self, name: str, login: str, password_hash: str):
+        folk = CommonFolk(name=name, login=login, password_hash=password_hash)
         self.session.add(folk)
         self.session.commit()
         return folk
 
     def get_commonfolk_by_id(self, folk_id: int):
         return self.session.query(CommonFolk).filter(CommonFolk.id == folk_id).first()
+
+    def get_commonfolk_by_login(self, login: str):
+        return self.session.query(CommonFolk).filter(CommonFolk.login == login).first()
 
     def update_commonfolk(self, folk_id: int, **kwargs):
         folk = self.get_commonfolk_by_id(folk_id)

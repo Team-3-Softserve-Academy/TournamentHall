@@ -67,9 +67,9 @@ ALLOWED_IPS="192.168.56.16 192.168.56.32"
 
 `models.py` defines the ORM models and creates the corresponding tables and constraints in PostgreSQL:
 
-* **`Lord` (`lords`)**: Stores lord records (`name` up to 100 chars, `image_url` string, `house` up to 100 chars).
-* **`Knight` (`knights`)**: Stores knight records (`name` and `house` up to 100 chars, `image_url` string, combat stats `strength`, `speed`, and `protection` constrained between `1` and `20`, unique `key` up to 255 chars, and `key_last_used` timestamp).
-* **`CommonFolk` (`commonfolks`)**: Stores common folk records (`name` up to 100 chars).
+* **`Lord` (`lords`)**: Stores lord records (`name` and unique `login` up to 100 chars, `password_hash` up to 255 chars, `image_url` string, `house` up to 100 chars).
+* **`Knight` (`knights`)**: Stores knight records (`name`, unique `login`, and `house` up to 100 chars, `password_hash` up to 255 chars, `image_url` string, combat stats `strength`, `speed`, and `protection` constrained between `1` and `20`, unique `key` up to 255 chars, and `key_last_used` timestamp).
+* **`CommonFolk` (`commonfolks`)**: Stores common folk records (`name` and unique `login` up to 100 chars, `password_hash` up to 255 chars).
 
 ### How It Works
 1. Imports `engine` and `Base` from `database_access.py` (which automatically reads `.env` or falls back to `.env.example`).
