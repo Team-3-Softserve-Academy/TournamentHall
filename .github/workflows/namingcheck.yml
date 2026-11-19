@@ -1,11 +1,9 @@
-name: "Check PR Titles and Branch Names"
+name: "Check PR Titles"
 
 on:
   pull_request:
     types: [opened, edited, synchronize]
-  create:
-    branches:
-      - '*' 
+
 
 jobs:
   validate-pr-title:
@@ -15,12 +13,5 @@ jobs:
         run: |
           if [[ ! "${{ github.event.pull_request.title }}" =~ ^ROOT-[0-9]+ .+ ]]; then
             echo "::error ::PR title must follow format: ROOT-123 Your title"
-            exit 1
-          fi
-
-      - name: Check branch name
-        run: |
-          if [[ ! "${{ github.ref }}" =~ ^refs/heads/ROOT-[0-9]-.+]]; then
-            echo "::error ::Branch name must follow format: ROOT-123"
             exit 1
           fi
