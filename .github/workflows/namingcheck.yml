@@ -3,6 +3,9 @@ name: "Check PR Titles and Branch Names"
 on:
   pull_request:
     types: [opened, edited, synchronize]
+  create:
+    branches:
+      - '*' 
 
 jobs:
   validate-pr-title:
@@ -14,16 +17,7 @@ jobs:
             echo "::error ::PR title must follow format: ROOT-123 Your title"
             exit 1
           fi
-          
-on:
-  create:
-    branches:
-      - '*' 
 
-jobs:
-  validate-branch-name:
-    runs-on: ubuntu-latest
-    steps:
       - name: Check branch name
         run: |
           if [[ ! "${{ github.ref }}" =~ ^refs/heads/ROOT-[0-9]-.+]]; then
