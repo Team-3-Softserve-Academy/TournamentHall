@@ -1,1 +1,7 @@
-.vagrant
+.env
+__pycache__/
+venv/
+.venv/
+.vagrant/
+test.py
+
