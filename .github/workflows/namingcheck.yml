@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Check PR title
         run: |
-          if [[ ! "${{ github.event.pull_request.title }}" =~ ^ROOT-[0-9]+ .+ ]]; then
+          if [[ ! "${{ github.event.pull_request.title }}" =~ ^ROOT-[0-9]+\ [^[:space:]].* ]]; then
             echo "::error ::PR title must follow format: ROOT-123 Your title"
             exit 1
           fi
