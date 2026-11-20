@@ -38,7 +38,6 @@ Vagrant.configure("2") do |config|
     app01.vm.network "private_network", ip: "192.168.56.16"
     app01.vm.hostname = "application-01"
 
-    app01.vm.provision "file", source: ".env", destination: "/tmp/.env"
     app01.vm.provision "shell", path: "./provisioning/create_ssh_user.sh", env: {
       "SSH_USER" => "#{ssh_user}",
       "SSH_USER_PASSWORD" => "#{ssh_user_pasword}"
@@ -62,7 +61,6 @@ Vagrant.configure("2") do |config|
     app02.vm.network "private_network", ip: "192.168.56.32"
     app02.vm.hostname = "application-02"
 
-    app02.vm.provision "file", source: ".env", destination: "/tmp/.env"
     app02.vm.provision "shell", path: "./provisioning/create_ssh_user.sh", env: {
       "SSH_USER" => "#{ssh_user}",
       "SSH_USER_PASSWORD" => "#{ssh_user_pasword}"
@@ -86,7 +84,6 @@ Vagrant.configure("2") do |config|
     database.vm.network "private_network", ip: "192.168.56.64"
     database.vm.hostname = "database"
 
-    database.vm.provision "file", source: ".env", destination: "/tmp/.env"
     database.vm.provision "shell", path: "./provisioning/create_ssh_user.sh", env: {
       "SSH_USER" => "#{ssh_user}",
       "SSH_USER_PASSWORD" => "#{ssh_user_pasword}"
