@@ -5,7 +5,7 @@ This document provides concrete examples of how to interact with the database.
 The repositories `LordRepository`, `KnightRepository`, `CommonFolkRepository` are providing interface for CRUD operations.
 
 ## 1. Initialization and Session Management
-Before using any repository, you must obtain a database session from `database_access.py`. 
+Before using any repository, you must obtain a database session from `database_access.py`.
 **Note:** Close the session after your operations are complete to release the database connection.
 
 ```python
@@ -47,9 +47,9 @@ arthur = knight_repo.create_knight(
     login="arthur_pendragon",
     password_hash="hashed_password_456",
     image_url="https://example.com/arthur.jpg",
-    strength=18, 
-    speed=15, 
-    protection=17, 
+    strength=18,
+    speed=15,
+    protection=17,
     house="Pendragon",
     key="knight_secret_key"
 )
@@ -63,7 +63,7 @@ smith = folk_repo.create_commonfolk(
 ```
 
 ## 3. Reading Records (Read)
-You can fetch records by their primary key (ID), by login, retrieve all records, or use pagination. 
+You can fetch records by their primary key (ID), by login, retrieve all records, or use pagination.
 
 ```python
 # Get by ID

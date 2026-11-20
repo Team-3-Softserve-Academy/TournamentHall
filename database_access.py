@@ -12,13 +12,18 @@ DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
 if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
-    raise ValueError("Error: ensure DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, and DB_NAME are set in '.env' or '.env.example'.")
+    raise ValueError(
+        "Error: ensure DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, and DB_NAME are set in '.env' or '.env.example'."
+    )
 
-DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URI = (
+    f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
 
 engine = create_engine(DATABASE_URI)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
+
 
 def get_session():
     return Session()

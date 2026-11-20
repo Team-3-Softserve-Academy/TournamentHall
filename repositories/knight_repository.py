@@ -1,6 +1,7 @@
 from datetime import datetime
 from models import Knight
 
+
 class KnightRepository:
     def __init__(self, db_session):
         self.session = db_session
@@ -16,7 +17,7 @@ class KnightRepository:
         protection: int = None,
         house: str = None,
         key: str = None,
-        key_last_used: datetime = None
+        key_last_used: datetime = None,
     ):
         knight = Knight(
             name=name,
@@ -28,7 +29,7 @@ class KnightRepository:
             protection=protection,
             house=house,
             key=key,
-            key_last_used=key_last_used
+            key_last_used=key_last_used,
         )
         self.session.add(knight)
         self.session.commit()
@@ -61,8 +62,14 @@ class KnightRepository:
         return self.session.query(Knight).order_by(Knight.name, Knight.id).all()
 
     def get_knights_paginated(self, page: int, page_size: int):
-        if(page < 1 or page_size < 1):
+        if page < 1 or page_size < 1:
             return None
 
         offset = (page - 1) * page_size
-        return self.session.query(Knight).order_by(Knight.name, Knight.id).limit(page_size).offset(offset).all()
+        return (
+            self.session.query(Knight)
+            .order_by(Knight.name, Knight.id)
+            .limit(page_size)
+            .offset(offset)
+            .all()
+        )

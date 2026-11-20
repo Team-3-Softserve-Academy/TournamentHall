@@ -1,5 +1,6 @@
 from models import CommonFolk
 
+
 class CommonFolkRepository:
     def __init__(self, db_session):
         self.session = db_session

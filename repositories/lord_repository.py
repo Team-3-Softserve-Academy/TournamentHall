@@ -1,11 +1,25 @@
 from models import Lord
 
+
 class LordRepository:
     def __init__(self, db_session):
         self.session = db_session
 
-    def create_lord(self, name: str, login: str, password_hash: str, image_url: str = None, house: str = None):
-        lord = Lord(name=name, login=login, password_hash=password_hash, image_url=image_url, house=house)
+    def create_lord(
+        self,
+        name: str,
+        login: str,
+        password_hash: str,
+        image_url: str = None,
+        house: str = None,
+    ):
+        lord = Lord(
+            name=name,
+            login=login,
+            password_hash=password_hash,
+            image_url=image_url,
+            house=house,
+        )
         self.session.add(lord)
         self.session.commit()
         return lord
@@ -37,9 +51,14 @@ class LordRepository:
         return self.session.query(Lord).order_by(Lord.name, Lord.id).all()
 
     def get_lords_paginated(self, page: int, page_size: int):
-        if(page < 1 or page_size < 1):
+        if page < 1 or page_size < 1:
             return None
 
         offset = (page - 1) * page_size
-        return self.session.query(Lord).order_by(Lord.name, Lord.id).limit(page_size).offset(offset).all()
-
+        return (
+            self.session.query(Lord)
+            .order_by(Lord.name, Lord.id)
+            .limit(page_size)
+            .offset(offset)
+            .all()
+        )

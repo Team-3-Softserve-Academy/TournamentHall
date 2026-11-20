@@ -15,7 +15,7 @@
 ## What's new?
 -
 
-## Screenshots 
+## Screenshots
 -
 
 ## How to test
