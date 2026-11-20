@@ -28,6 +28,3 @@ for IP in ${ALLOWED_IPS} ${DB_HOST}; do
     echo "host ${DB_NAME} ${DB_USER} ${IP}/32 scram-sha-256" | sudo tee -a "$PG_HBA"
 done
 sudo systemctl restart postgresql
-
-
-
