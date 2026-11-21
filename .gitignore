@@ -4,4 +4,5 @@ venv/
 .vagrant/
 test.py
 new/
-venv/
+.venv/
+.idea/
