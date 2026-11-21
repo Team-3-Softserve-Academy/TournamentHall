@@ -1,56 +1,63 @@
-from sqlalchemy import Column, Integer, String, DateTime, CheckConstraint
-from database_access import Base, engine
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+DB_USER=os.getenv("DB_USER")
+DB_PASS=os.getenv("DB_PASS")
+DB_HOST=os.getenv("DB_HOST")
+DB_PORT=os.getenv("DB_PORT")
+DB_NAME=os.getenv("DB_NAME")
+
+engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+Base=declarative_base()
+Session=sessionmaker(engine)
+session=Session()
+
+class User(Base):
+    __tablename__="users"
+
+    id=Column(Integer, primary_key=True)
+    login=Column(String(100), unique=True)
+    password_hash=Column(String(100), nullable=False)
+    role=Column(String(20))
 
 class Lord(Base):
-    __tablename__ = "lords"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
-    login = Column(String(100), unique=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    image_url = Column(String)
-    house = Column(String(100))
+    __tablename__="lords"
 
-    __table_args__ = (
-        CheckConstraint("length(trim(name)) > 0", name="check_lord_name_not_empty"),
-        CheckConstraint("length(trim(login)) > 0", name="check_lord_login_not_empty"),
-        CheckConstraint("length(trim(password_hash)) > 0", name="check_lord_password_not_empty"),
-    )
+    id=Column(Integer, primary_key=True)
+    full_name=Column(String(100))
+    photo_url=Column(String(250))
+    home=Column(String(100))
+
+    user_id=Column(ForeignKey("users.id"))
 
 class Knight(Base):
-    __tablename__ = "knights"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
-    login = Column(String(100), unique=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    image_url = Column(String)
-    strength = Column(Integer)
-    speed = Column(Integer)
-    protection = Column(Integer)
-    house = Column(String(100))
-    key = Column(String(255), unique=True)
-    key_last_used = Column(DateTime)
+    __tablename__="knights"
 
-    __table_args__ = (
-        CheckConstraint("length(trim(name)) > 0", name="check_knight_name_not_empty"),
-        CheckConstraint("length(trim(login)) > 0", name="check_knight_login_not_empty"),
-        CheckConstraint("length(trim(password_hash)) > 0", name="check_knight_password_not_empty"),
-        CheckConstraint("strength BETWEEN 1 AND 20", name="check_knight_strength_range"),
-        CheckConstraint("speed BETWEEN 1 AND 20", name="check_knight_speed_range"),
-        CheckConstraint("protection BETWEEN 1 AND 20", name="check_knight_protection_range"),
-    )
+    id=Column(Integer, primary_key=True)
+    full_name=Column(String(100))
+    photo_url=Column(String(250))
+    home=Column(String(100))
+    motto=Column(String(200))
+    strength=Column(Integer)
+    protection=Column(Integer)
+    speed=Column(Integer)
+    key_hash=Column(String(100))
+    key_last_updated=Column(DateTime)
 
+    user_id=Column(ForeignKey("users.id"))
+  
 class CommonFolk(Base):
-    __tablename__ = "commonfolks"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
-    login = Column(String(100), unique=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
+    __tablename__="commonfolks"
 
-    __table_args__ = (
-        CheckConstraint("length(trim(name)) > 0", name="check_commonfolk_name_not_empty"),
-        CheckConstraint("length(trim(login)) > 0", name="check_commonfolk_login_not_empty"),
-        CheckConstraint("length(trim(password_hash)) > 0", name="check_commonfolk_password_not_empty"),
-    )
+    id=Column(Integer, primary_key=True)
+    name=Column(String(100))
 
-Base.metadata.create_all(bind=engine)
+    user_id=Column(ForeignKey("users.id"))
 
+Base.metadata.create_all(engine)

@@ -1,34 +1,35 @@
 from models import CommonFolk
+from models import User
+from sqlalchemy import select
 
 class CommonFolkRepository:
-    def __init__(self, db_session):
-        self.session = db_session
+    def __init__(self, session):
+        self.session=session
+        
+    def create(self, name, login, password_hash):
+        commonfolk_user=User(
+            login=login, 
+            password_hash=password_hash,
+            role="CommonFolk"
+        )
+        self.session.add(commonfolk_user)
+        self.session.flush()
 
-    def create_commonfolk(self, name: str, login: str, password_hash: str):
-        folk = CommonFolk(name=name, login=login, password_hash=password_hash)
-        self.session.add(folk)
+        commonfolk_role=CommonFolk(
+            name=name, 
+            user_id=commonfolk_user.id,
+        )
+
+        self.session.add(commonfolk_role)
         self.session.commit()
-        return folk
 
-    def get_commonfolk_by_id(self, folk_id: int):
-        return self.session.query(CommonFolk).filter(CommonFolk.id == folk_id).first()
+        return commonfolk_role
 
-    def get_commonfolk_by_login(self, login: str):
-        return self.session.query(CommonFolk).filter(CommonFolk.login == login).first()
 
-    def update_commonfolk(self, folk_id: int, **kwargs):
-        folk = self.get_commonfolk_by_id(folk_id)
-        if folk:
-            for key, value in kwargs.items():
-                if hasattr(folk, key):
-                    setattr(folk, key, value)
-            self.session.commit()
-        return folk
+    def get_by_id(self, folk_id):
+        result_commonfolk=self.session.execute(
+            select(CommonFolk). \
+            where(CommonFolk.id==folk_id)
+        ).scalars().first()
 
-    def delete_commonfolk(self, folk_id: int):
-        folk = self.get_commonfolk_by_id(folk_id)
-        if folk:
-            self.session.delete(folk)
-            self.session.commit()
-            return True
-        return False
+        return result_commonfolk
