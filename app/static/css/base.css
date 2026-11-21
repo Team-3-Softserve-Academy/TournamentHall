@@ -1,0 +1,23 @@
+.site-header {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px 24px;
+}
+ 
+.site-header-inner{
+  display: flex;
+  justify-content: space-between;
+}
+
+nav.site-nav {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.brand-mark{
+  text-decoration: none;
+  color: #292722;
+  padding-bottom: 4px;
+}
