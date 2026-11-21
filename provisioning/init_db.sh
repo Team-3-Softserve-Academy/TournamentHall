@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-source .env.example
+source .env
 
 sudo apt-get update -y
 sudo apt-get install -y postgresql-common
