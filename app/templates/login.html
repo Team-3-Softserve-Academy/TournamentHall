@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}The Tourney{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block main_class %}auth-shell{% endblock %}
+
+{% block content %}
+<section class="auth-card">
+  <header class="auth-header">
+    <a href="{{ url_for('book_of_knights') }}" class="brand-mark">
+      <span class="brand-text">THE TOURNEY</span>
+    </a>
+    <h1 id="login-heading" class="auth-title">Sign in</h1>
+  </header>
+
+  {% if error_banner %}
+    <div class="alert alert-error" role="alert">{{ error_banner }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('login') }}">
+    {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />{% endif %}
+
+    <div class="form-section">
+      <h2 class="section-label">YOUR CREDENTIALS</h2>
+
+      <div class="field-group {% if errors.get('login') %}has-error{% endif %}">
+        <label for="login" class="field-label">Login</label>
+        <input id="login" name="login" type="text" class="field-input" placeholder="Enter your login" value="{{ form_data.get('login', '') }}" required />
+        {% if errors.get('login') %}
+          <p class="field-error">{{ errors['login'] }}</p>
+        {% endif %}
+      </div>
+
+      <div class="field-group {% if errors.get('password') %}has-error{% endif %}">
+        <label for="password" class="field-label">Password</label>
+        <div class="input-with-action">
+          <input id="password" name="password" type="password" class="field-input" placeholder="Please enter your password" required/>
+          <button type="button" class="input-action-btn" data-toggle-password="password" aria-label="Toggle password visibility">
+                   <i class="bi bi-eye"></i>
+          </button>
+     
+      </div>
+
+    </div>
+
+    <div class="form-submit-block">
+      <button type="submit" class="btn-primary">
+        <span>Sign in</span>
+      </button>
+    </div>
+
+    <hr class="section-divider" />
+
+    <footer class="auth-footer">
+      New to the app? <a href="{{ url_for('register') }}">Create an account</a>
+    </footer>
+  </form>
+</section>
+{% endblock %}
