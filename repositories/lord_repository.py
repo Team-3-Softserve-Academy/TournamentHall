@@ -1,45 +1,44 @@
 from models import Lord
+from models import User
+from sqlalchemy import select
 
 class LordRepository:
-    def __init__(self, db_session):
-        self.session = db_session
+    def __init__(self, session):
+        self.session=session
+        
+    def create(
+            self, 
+            full_name, 
+            login, 
+            password_hash,
+            photo_url,
+            home
+        ):  
+        lord_user=User(
+            login=login, 
+            password_hash=password_hash,
+            role="Lord"
+        )
+        self.session.add(lord_user)
+        self.session.flush()
 
-    def create_lord(self, name: str, login: str, password_hash: str, image_url: str = None, house: str = None):
-        lord = Lord(name=name, login=login, password_hash=password_hash, image_url=image_url, house=house)
-        self.session.add(lord)
+        lord_role=Lord(
+            full_name=full_name, 
+            photo_url=photo_url,
+            home=home,
+            
+            user_id=lord_user.id,
+        )
+
+        self.session.add(lord_role)
         self.session.commit()
-        return lord
 
-    def get_lord_by_id(self, lord_id: int):
-        return self.session.query(Lord).filter(Lord.id == lord_id).first()
+        return lord_role
 
-    def get_lord_by_login(self, login: str):
-        return self.session.query(Lord).filter(Lord.login == login).first()
+    def get_by_id(self, lord_id):
+        result_lord=self.session.execute(
+            select(Lord). \
+            where(Lord.id==lord_id)
+        ).scalars().first()
 
-    def update_lord(self, lord_id: int, **kwargs):
-        lord = self.get_lord_by_id(lord_id)
-        if lord:
-            for key, value in kwargs.items():
-                if hasattr(lord, key):
-                    setattr(lord, key, value)
-            self.session.commit()
-        return lord
-
-    def delete_lord(self, lord_id: int) -> bool:
-        lord = self.get_lord_by_id(lord_id)
-        if lord:
-            self.session.delete(lord)
-            self.session.commit()
-            return True
-        return False
-
-    def get_all_lords(self):
-        return self.session.query(Lord).order_by(Lord.name, Lord.id).all()
-
-    def get_lords_paginated(self, page: int, page_size: int):
-        if(page < 1 or page_size < 1):
-            return None
-
-        offset = (page - 1) * page_size
-        return self.session.query(Lord).order_by(Lord.name, Lord.id).limit(page_size).offset(offset).all()
-
+        return result_lord
