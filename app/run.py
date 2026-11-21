@@ -69,16 +69,16 @@ def login():
     
     if request.method == "POST":
         form_data = request.form.to_dict()
-        name = form_data.get("name", "").strip()
+        login = form_data.get("login", "").strip()
         password = form_data.get("password", "")
 
-        if not name:
-            errors["name"] = "Please enter your name."
+        if not login:
+            errors["login"] = "Please enter your login."
         if not password:
             errors["password"] = "Please enter your password."
 
         if not errors:
-            session["user"] = {"name": name}
+            session["user"] = {"login": login}
             return redirect(url_for("book_of_knights"))
             
 

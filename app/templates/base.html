@@ -23,7 +23,7 @@
 
       <nav class="site-nav">
         {% if session.get("user") %}
-          <span class="nav-user">{{ session["user"]["name"] }}</span>
+          <span class="nav-user">{{ session["user"]["login"] }}</span>
           <a href="{{ url_for('logout') }}" class="nav-link">Sign out</a>
         {% else %}
           <a href="{{ url_for('login') }}" class="nav-link {% if request.endpoint == 'login' %}active{% endif %}">Sign in</a>

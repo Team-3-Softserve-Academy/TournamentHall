@@ -28,11 +28,11 @@
     <div class="form-section">
       <h2 class="section-label">YOUR CREDENTIALS</h2>
 
-      <div class="field-group {% if errors.get('name') %}has-error{% endif %}">
-        <label for="login-name" class="field-label">Name</label>
-        <input id="login-name" name="name" type="text" class="field-input" placeholder="Enter your name" value="{{ form_data.get('name', '') }}" required />
-        {% if errors.get('name') %}
-          <p class="field-error">{{ errors['name'] }}</p>
+      <div class="field-group {% if errors.get('login') %}has-error{% endif %}">
+        <label for="login" class="field-label">Login</label>
+        <input id="login" name="login" type="text" class="field-input" placeholder="Enter your login" value="{{ form_data.get('login', '') }}" required />
+        {% if errors.get('login') %}
+          <p class="field-error">{{ errors['login'] }}</p>
         {% endif %}
       </div>
 
