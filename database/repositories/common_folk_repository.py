@@ -1,5 +1,4 @@
-from models import CommonFolk
-from models import User
+from database.models import CommonFolk, User
 from sqlalchemy import select
 
 class CommonFolkRepository:

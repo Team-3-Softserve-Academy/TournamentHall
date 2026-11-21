@@ -1,5 +1,4 @@
-from models import Lord
-from models import User
+from database.models import Lord, User
 from sqlalchemy import select
 
 class LordRepository:

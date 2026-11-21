@@ -1,5 +1,4 @@
-from models import Knight
-from models import User
+from database.models import Knight, User
 from sqlalchemy import select
 
 class KnightRepository:
