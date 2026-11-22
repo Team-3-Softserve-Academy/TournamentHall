@@ -88,6 +88,10 @@ def login():
         form_data=form_data,
     )
 
+@app.route("/")
+def index():
+    return redirect(url_for("login"))
+
 @app.route("/book-of-knights")
 def book_of_knights():
     return render_template("base.html")
@@ -101,4 +105,4 @@ def logout():
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)

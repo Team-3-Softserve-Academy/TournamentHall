@@ -1,7 +1,10 @@
 .env
 __pycache__/
 venv/
+.venv
 .vagrant/
 test.py
 new/
 venv/
+.ruff_cache
+log.txt
