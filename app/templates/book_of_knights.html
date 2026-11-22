@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Book of Knights{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/book.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="ledger-container">
+  <header class="ledger-header">
+    <div class="ledger-title-box">
+      <h1 class="ledger-title">Book of Knights</h1>
+    </div>
+
+    <!-- <form method="GET" action="{{ url_for('book_of_knights') }}" class="ledger-filters">
+      <select name="role" class="field-input field-select filter-control" onchange="this.form.submit()">
+        <option value="all" {% if active_role == 'all' %}selected{% endif %}>All Sworn (Lords &amp; Knights)</option>
+        <option value="Lord" {% if active_role == 'Lord' %}selected{% endif %}>Lords Only</option>
+        <option value="Knight" {% if active_role == 'Knight' %}selected{% endif %}>Knights Only</option>
+      </select>
+
+      <select name="house" class="field-input field-select filter-control" onchange="this.form.submit()">
+        <option value="all" {% if active_house == 'all' %}selected{% endif %}>All Houses</option>
+        {% for house in houses %}
+          <option value="{{ house.name }}" {% if active_house == house.name %}selected{% endif %}>{{ house.name }}</option>
+        {% endfor %}
+      </select>
+
+    </form> -->
+
+    {% if current_user and current_user.role != 'Lord' %}
+    <!-- {% if gossip_used_today %}
+      <div class="gossip-status">
+        <span class="gossip-status-text">You have already cast your daily whisper.</span>
+      </div>
+    {% endif %} -->
+    <form method="GET" action="{{ url_for('get_knight_gossip_password') }}" class="ledger-filters"">
+      <select name="knight_id" class="field-input field-select filter-control" onchange="this.form.submit()">
+        <option value="all">Knights</option>
+        {% for knight in entries %}
+          {% if current_user.id != knight.id %}
+            <option
+                    value="{{ knight.id }}"
+                    {% if selected_knight_id == knight.id|string %}selected{% endif %}
+                >
+                    {{ knight.name }}
+                </option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </form>
+    {% endif %}
+
+    {% if retrieved_gossip_password %}
+    <div class="gossip-result">
+        <span>Retrieved Gossip Password:</span>
+        <strong>{{ retrieved_gossip_password }}</strong>
+    </div>
+    {% endif %}
+    
+  </header>
+
+  <section class="knights-grid" aria-label="Registered Lords and Knights">
+    {% for entry in entries %}
+      <!-- {% set can_view_stats = current_user and (current_user.role == 'lord' or current_user.house_slug == entry.house_slug) %} -->
+      <!-- {% set can_view_stats = current_user and current_user.house_slug == entry.house_slug %} -->
+      {% set can_view_stats = current_user and (
+        current_user.id == entry.id
+        or (
+            current_user.role == 'Knight'
+            and current_user.house == entry.house
+        )
+        or (
+            current_user.role == 'Knight'
+            and entry.id in gossip_access_ids
+        )
+    ) %}
+      <article class="knight-pedestal">
+        <!-- 1. Photo -->
+        <div class="pedestal-photo">
+            <img src="{{ entry.image_url }}" alt="{{ entry.name }}" />
+            <span class="role-pill">{{ entry.role|title }}</span>
+        </div>
+
+        <!-- 2. House / Motto -->
+        <div class="pedestal-house-box">
+          <div class="pedestal-house">{{ entry.house }}</div>
+          <!-- <div class="pedestal-motto">“{{ entry.house_motto }}”</div> -->
+        </div>
+
+        <!-- 3. Name -->
+        <div class="pedestal-name-box">
+          <h2 class="pedestal-name">{{ entry.name }}</h2>
+        </div>
+
+        <!-- 4. Stats (Only lords and members of the same house) -->
+        {% if entry.role != 'Lord' %}
+        <div class="pedestal-stats-box">
+            {% if can_view_stats %}
+                <div class="stats-row">
+                    <div class="stat-cell"><span>STR</span><strong>{{ entry.strength }}</strong></div>
+                    <div class="stat-cell"><span>DEX</span><strong>{{ entry.dexterity }}</strong></div>
+                    <div class="stat-cell"><span>CON</span><strong>{{ entry.constitution }}</strong></div>
+                </div>
+            {% else %}
+                <p class="stats-restricted">
+                    Stats visible only to Lords and members of {{ entry.house }}
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+        <!-- 5. Gossip -->
+        <!-- {% if current_user and current_user.role == 'knight' and current_user.id != entry.id and entry.role != 'lord' %}
+        <form method="POST" action="{{ url_for('post_gossip', knight_id=entry.id) }}" class="pedestal-gossip-box">
+          {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />{% endif %}
+          <button type="submit" class="gossip-btn" {% if gossip_used_today %}disabled{% endif %}>
+            Gossip
+          </button>
+
+          <input type="password" name="gossip_password" class="field-input" placeholder="Enter gossip password" autocomplete="off" required />
+          <button type="submit" class="gossip-btn">Submit</button>
+        </form>
+        {% endif %} -->
+
+        {% if current_user
+      and current_user.role == 'Knight'
+      and current_user.id != entry.id
+      and entry.role == 'Knight' %}
+
+  <div class="pedestal-gossip-box">
+    <details class="gossip-details">
+      <summary class="gossip-btn">Gossip</summary>
+
+      <form method="POST"
+            action="{{ url_for('post_gossip', knight_id=entry.id) }}"
+            class="gossip-password-form">
+
+        {% if csrf_token %}
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% endif %}
+
+        <label for="gossip-password-{{ entry.id }}">
+          Enter Gossip password
+        </label>
+
+        <input
+          type="password"
+          id="gossip-password-{{ entry.id }}"
+          name="gossip_password"
+          class="field-input"
+          placeholder="Gossip password"
+          autocomplete="off"
+          required
+        >
+
+        <button type="submit" class="gossip-btn">
+          Unlock statistics
+        </button>
+      </form>
+    </details>
+  </div>
+
+{% endif %}
+      </article>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}
