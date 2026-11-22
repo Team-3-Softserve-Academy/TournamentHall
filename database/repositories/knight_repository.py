@@ -51,6 +51,11 @@ class KnightRepository:
 
         return result_knight
 
+    def get_all(self):
+        return self.session.execute(
+            select(Knight)
+        ).scalars().all()
+
     def update_key(self, knight_id, key_hash, updated_at):
         knight = self.get_by_id(knight_id)
         knight.key_hash=key_hash
