@@ -18,10 +18,8 @@ sudo bash -c "echo \"listen_addresses='*'\" >> \"/etc/postgresql/16/main/postgre
 #     sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} ${IP}/32 scram-sha-256\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
 # done    
 
-sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.53.1   reject\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
-sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.53.2   reject\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
-sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.53.253 reject\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
-sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.53.254 reject\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
-sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.53.0/24 scram-sha-256\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
+sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.56.2   reject\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
+sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.56.254 reject\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
+sudo bash -c "echo \"host ${DB_NAME} ${DB_USER} 192.168.56.0/24 scram-sha-256\" >> \"/etc/postgresql/16/main/pg_hba.conf\""
 
 sudo systemctl restart postgresql
