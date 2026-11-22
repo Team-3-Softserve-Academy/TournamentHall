@@ -12,7 +12,8 @@ def _get_current_knight_id():
     claims = get_jwt()
     if claims.get("role") != "Knight":
         return None
-    return claims.get("profile_id")
+    profile_id = claims.get("profile_id")
+    return int(profile_id) if profile_id is not None else None
 
 def _get_request_data():
     data = request.get_json(silent=True)

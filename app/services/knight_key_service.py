@@ -1,5 +1,5 @@
 from app.utils.validators import hash_password, has_forbidden_chars
-from database.models import Session, Knight
+from database.models import Session
 from database.repositories.knight_repository import KnightRepository
 from datetime import datetime, timezone
 import secrets, hmac
