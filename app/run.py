@@ -1,8 +1,9 @@
 from flask import Flask, redirect, render_template, request, session, url_for
-
+from datetime import datetime, timedelta, timezone
 app = Flask(__name__)
 app.secret_key = "development-secret-key"
 
+GOSSIP_GRANTS = {}
 
 HOUSES = [
     {"name": "House Vance"},
@@ -88,17 +89,56 @@ def login():
         form_data=form_data,
     )
 
-@app.route("/book-of-knights")
-def book_of_knights():
-    return render_template("base.html")
-
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return render_template("base.html")
+    errors = {}
+    form_data = {"role": "Knight", "strength": 10, "dexterity": 10, "constitution": 10}
+    
+    if request.method == "POST":
+        form_data = request.form.to_dict()
+        role = form_data.get("role", "Knight")
+        login = form_data.get("login", "").strip()
+        password = form_data.get("password", "")
+        house = form_data.get("house", "")
+
+        if role not in {"Knight", "Lord", "Smallfolk"}:
+            errors["role"] = "Please choose a role."
+        if not login:
+            errors["login"] = "Please enter your name."
+        elif login in USERS:
+            errors["login"] = "That name is already taken."
+
+        if len(password) < 8:
+            errors["password"] = "Use at least 8 characters with numbers."
+    
+        if not errors:
+            USERS[login] = {
+                "id": len(USERS) + 1,
+                "name": login,
+                "password": password,
+                "role": role,
+                "house": house["name"] if house else None,
+                "strength": int(form_data.get("strength", 10)) if role == "Knight" else None,
+                "dexterity": int(form_data.get("dexterity", 10)) if role == "Knight" else None,
+                "constitution": int(form_data.get("constitution", 10)) if role == "Knight" else None,
+                "image_url": "",
+            }
+            print(USERS[login])
+            return redirect(url_for("login"))
+
+    return render_template(
+        "register.html",
+        houses=HOUSES,
+        errors=errors,
+        form_data=form_data)
 
 @app.route("/logout")
 def logout():
     return redirect(url_for("login"))
 
-if __name__ == "__main__":
+@app.route("/book-of-knights")
+def book_of_knights():
+    return render_template("base.html")
+
+if (__name__ == "__main__") :
     app.run(debug=True)

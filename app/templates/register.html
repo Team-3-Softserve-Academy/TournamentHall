@@ -1,0 +1,158 @@
+
+{% extends "base.html" %}
+{% set selected_role = form_data.get('role', 'Knight') %}
+
+{% block title %}Register page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block main_class %}auth-shell{% endblock %}
+
+{% block content %}
+<section class="auth-card">
+    <header class="auth-header">
+        <a href="{{ url_for('book_of_knights') }}" class="brand-mark">
+            <span class="brand-text">THE TOURNEY</span>
+        </a>
+        <h1 id="register-heading" class="auth-title">Sign up</h1>
+    </header>
+
+    <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data" id="register-form">
+        {% if csrf_token %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        {% endif %}
+
+        <!-- ROLE -->
+        <div class="form-section">
+            <h2 class="section-label">CHOOSE YOUR ROLE</h2>
+
+            <div class="role-grid" role="radiogroup" aria-label="Choose your role">
+                {% set roles = ['Knight', 'Lord', 'Smallfolk'] %}
+                {% for value in roles %}
+                <label class="role-card {% if selected_role == value %}selected{% endif %}" data-role-option="{{ value }}">
+                    <input type="radio" name="role" value="{{ value }}" {% if selected_role == value %}checked{% endif %}/>
+                    <span class="role-title">{{ value }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            {% if errors.get('role') %}
+            <p class="field-error">{{ errors['role'] }}</p>
+            {% endif %}
+        </div>
+
+        <hr class="section-divider" />
+
+        <!-- ACCOUNT -->
+        <div class="form-section" id="account-section">
+            <h2 class="section-label">YOUR ACCOUNT</h2>
+
+            <div class="field-group {% if errors.get('login') %}has-error{% endif %}">
+                <label for="login" class="field-label">Login</label>
+                <input id="login" name="login" type="text" class="field-input" placeholder="Enter your login" value="{{ form_data.get('login', '') }}" required/>
+
+                {% if errors.get('login') %}
+                <p class="field-error">{{ errors['login'] }}</p>
+                {% endif %}
+            </div>
+
+            <div class="field-group {% if errors.get('password') %}has-error{% endif %}">
+                <label for="password" class="field-label">Password</label>
+
+                <div class="input-with-action">
+                    <input id="password" name="password" type="password" class="field-input" placeholder="Please enter your password" required/>
+
+                    <button type="button" class="input-action-btn" data-toggle-password="password" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+
+                {% if errors.get('password') %}
+                <p class="field-error">{{ errors['password'] }}</p>
+                {% else %}
+                <p class="field-helper">Use at least 8 characters, including a number.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="profile-section">
+            <hr class="section-divider" />
+
+            <div class="form-section">
+                <h2 class="section-label">YOUR PROFILE</h2>
+
+                <div class="field-group {% if errors.get('photo') %}has-error{% endif %}">
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">Upload Profile Photo</label>
+                        <input class="form-control" type="file" id="formFile" name="photo" accept="image/*" />
+                    </div>
+
+                    {% if errors.get('photo') %}
+                    <p class="field-error">{{ errors['photo'] }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="field-group {% if errors.get('house') %}has-error{% endif %}">
+                    <label for="house" class="field-label">House</label>
+
+                    <select id="house" name="house" class="field-input field-select">
+                        <option value="" disabled {% if not form_data.get('house') %}selected{% endif %}>
+                            Choose your house
+                        </option>
+
+                        {% for house in houses %}
+                        <option value="{{ house.name }}" {% if form_data.get('house') == house.name %}selected{% endif %}>
+                            {{ house.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    {% if errors.get('house') %}
+                    <p class="field-error">{{ errors['house'] }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- STATISTICS -->
+        <div id="attributes-section">
+            <div class="form-section">
+                <h3 class="section-label">YOUR STATISTICS</h3>
+
+                <div class="attr-grid">
+                    {% for attr in ['Strength', 'Dexterity', 'Constitution'] %}
+                    <div class="attr-field">
+                        <label for="attr-{{ attr|lower }}" class="field-label">{{ attr }}</label>
+
+                        <div class="stepper">
+                            <button type="button" class="btn btn-outline-secondary" onclick="this.nextElementSibling.stepDown()">−</button>
+
+                            <input type="number" id="attr-{{ attr|lower }}" name="{{ attr|lower }}" class="form-control text-center" value="1" min="1" max="20"/>
+
+                            <button type="button" class="btn btn-outline-secondary"  onclick="this.previousElementSibling.stepUp()">+</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-submit-block">
+            <button type="submit" class="btn-primary" id="register-submit-btn">
+                <span id="register-submit-label">Create account</span>
+            </button>
+        </div>
+
+        <hr class="section-divider" />
+
+        <footer class="auth-footer">
+            Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+        </footer>
+    </form>
+</section>
+{% endblock %}
