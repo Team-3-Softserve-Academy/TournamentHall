@@ -99,7 +99,7 @@ def register():
         role = form_data.get("role", "Knight")
         login = form_data.get("login", "").strip()
         password = form_data.get("password", "")
-        house = form_data.get("house", "")
+        selected_house = form_data.get("house", "")
 
         if role not in {"Knight", "Lord", "Smallfolk"}:
             errors["role"] = "Please choose a role."
@@ -110,6 +110,11 @@ def register():
 
         if len(password) < 8:
             errors["password"] = "Use at least 8 characters with numbers."
+
+        house = next((h for h in HOUSES if h["name"] == selected_house), None)
+        if not house:
+            errors["house"] = "Please choose your house."
+
     
         if not errors:
             USERS[login] = {
