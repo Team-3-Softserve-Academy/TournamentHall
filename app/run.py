@@ -82,7 +82,7 @@ def login():
 
         if not errors:
             session["user"] = {"login": login}
-            return redirect(url_for("book_of_knights"))
+            return redirect(url_for("index"))
             
 
     return render_template(
@@ -101,7 +101,12 @@ def register():
         role = form_data.get("role", "Knight")
         login = form_data.get("login", "").strip()
         password = form_data.get("password", "")
-        selected_house = form_data.get("house", "")
+        house = None
+        if role != 'Smallfolk':
+            selected_house = form_data.get("house", "")
+            house = next((h for h in HOUSES if h["name"] == selected_house), None)
+            if not house:
+                errors["house"] = "Please choose your house."
 
         if role not in {"Knight", "Lord", "Smallfolk"}:
             errors["role"] = "Please choose a role."
@@ -111,11 +116,7 @@ def register():
             errors["login"] = "That name is already taken."
 
         if len(password) < 8:
-            errors["password"] = "Use at least 8 characters with numbers."
-
-        house = next((h for h in HOUSES if h["name"] == selected_house), None)
-        if not house:
-            errors["house"] = "Please choose your house."
+            errors["password"] = "Use at least 8 characters with numbers."      
 
         if not errors:
             USERS[login] = {
@@ -129,7 +130,7 @@ def register():
                 "constitution": int(form_data.get("constitution", 10)) if role == "Knight" else None,
                 "image_url": "",
             }
-            print(USERS)
+            print(USERS[login])
             return redirect(url_for("login"))
 
     return render_template(
@@ -143,144 +144,67 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
-# @app.route("/book-of-knights")
-# def book_of_knights():
-#     active_role = request.args.get("role", "all")
-#     active_house = request.args.get("house", "all")
-
-#     entries = [u for u in USERS.values() if u["role"] in {"knight", "lord"}]
-#     if active_role in {"knight", "lord"}:
-#         entries = [e for e in entries if e["role"] == active_role]
-#     if active_house != "all":
-#         entries = [e for e in entries if e["house"] == active_house]
-
-#     retrieved_password = session.pop("retrieved_gossip_password", None)
-
-#     now = datetime.now(timezone.utc)
-#     requester_id = session.get("user_id")
-
-#     gossip_access_ids = {
-#         target_id
-#         for (user_id, target_id), grant in GOSSIP_GRANTS.items()
-#         if user_id == requester_id
-#         and grant["expires_at"] > now
-#     }
- 
-#     print("user logged in = ", session['user']['login'])
-#     print(USERS.get(session['user']['login']))
-#     print(USERS)
-#     return render_template(
-#         "book_of_knights.html",
-#         entries=entries,
-#         houses=HOUSES,
-#         active_role=active_role,
-#         active_house=active_house,
-#         # gossip_used_today=bool(session.get("gossip_used_today")),
-#         current_user=USERS.get(session['user']['login']),
-#         retrieved_gossip_password=retrieved_password,
-#         gossip_access_ids=gossip_access_ids,
-#         gossip_used_today=(session.get("gossip_used_date") == datetime.now(timezone.utc).date().isoformat())
-#     )
-
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 @app.route("/book-of-knights")
 def book_of_knights():
-    active_role = request.args.get("role", "all")
-    active_house = request.args.get("house", "all")
-
-    entries = [u for u in USERS.values() if u["role"] in {"Knight", "Lord"}]
-    if active_role in {"Knight", "Lord"}:
-        entries = [e for e in entries if e["role"] == active_role]
-    if active_house != "all":
-        entries = [e for e in entries if e["house"] == active_house]
+    entries = [u for u in USERS.values() if u["role"] in {"Knight"}]
 
     retrieved_password = session.pop("retrieved_gossip_password", None)
 
     now = datetime.now(timezone.utc)
-    requester_id = session.get("user_id")
 
-    gossip_access_ids = {
-        target_id
-        for (user_id, target_id), grant in GOSSIP_GRANTS.items()
-        if user_id == requester_id
-        and grant["expires_at"] > now
-    }
-
-    print(USERS)
+    gossip_access_ids = {target_id for target_id, grant in GOSSIP_GRANTS.items() if grant["expires_at"] > now }
 
     return render_template(
-        "book_of_knights.html",
+        "book.html",
         entries=entries,
         houses=HOUSES,
-        active_role=active_role,
-        active_house=active_house,
-        # gossip_used_today=bool(session.get("gossip_used_today")),
         current_user=USERS.get(session['user']['login']),
         retrieved_gossip_password=retrieved_password,
         gossip_access_ids=gossip_access_ids,
-        gossip_used_today=(session.get("gossip_used_date") == datetime.now(timezone.utc).date().isoformat())
+        gossip_used_today=(session.get("gossip_used_date") == datetime.now(timezone.utc).date().isoformat()),
+        role='Knight'
     )
 
+@app.route("/book-of-lords")
+def book_of_lords():
+    entries = [u for u in USERS.values() if u["role"] in {"Lord"}]
+
+    return render_template(
+        "book.html",
+        entries=entries,
+        houses=HOUSES,
+        current_user=USERS.get(session['user']['login']),
+        role='Lord',  
+    )
 
 @app.route("/gossip/<int:knight_id>", methods=["POST"])
 def post_gossip(knight_id):
-    entered_password = request.form.get("gossip_password", "")
-
-    requester_id = session.get("user_id")
-
-    requester = next(
-        (user for user in USERS.values()
-         if user["id"] == requester_id),
-        None
-    )
-
-    target = next(
-        (user for user in USERS.values()
-         if user["id"] == knight_id),
-        None
-    )
-
     today = datetime.now(timezone.utc).date().isoformat()
 
     if session.get("gossip_used_date") == today:
         return redirect(url_for("book_of_knights"))
-  
-    # Validate target's Gossip password
-    if not (target["gossip_password"] == entered_password):
-        print(f"Entered password: {entered_password}, Target's gossip password hash: {target['gossip_password']}")
-        # flash("Incorrect Gossip password.", "error")
-        return redirect(url_for("book_of_knights"))
 
-    # Create a 24-hour access grant
     now = datetime.now(timezone.utc)
 
-    GOSSIP_GRANTS[(requester_id, knight_id)] = {
+    GOSSIP_GRANTS[knight_id] = {
         "granted_at": now,
         "expires_at": now + timedelta(hours=24)
     }
 
-    # Consume daily allowance
     session["gossip_used_date"] = today
 
-    # flash(
-    #     f"You can now view {target['name']}'s restricted statistics for 24 hours.",
-    #     "success"
-    # )
-
     return redirect(url_for("book_of_knights"))
-
 
 @app.route("/gossip", methods=["GET"]) 
 def get_knight_gossip_password():
     if session.get("gossip_used_today"):
-        # flash("You have already used your daily Gossip.", "error")
         return redirect(url_for("book_of_knights"))
 
-    knight_id = request.args.get("knight_id", type=int)
-
-    knight = next((user for user in USERS.values() if user["id"] == knight_id),None)
-    if knight:
-        session["retrieved_gossip_password"] = knight.get("gossip_password")
+    session["retrieved_gossip_password"] = "gossip_password"
     return redirect(url_for("book_of_knights"))
 
 

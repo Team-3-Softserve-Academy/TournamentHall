@@ -33,14 +33,6 @@
   font-size: 14px;
 }
 
-.stats-row {
-  /* display: flex;
-  flex-direction: row;
-  align-items: center; */
-  grid-template-rows: repeat(1, 1fr);
-  gap: 8px;
-}
-
 .stat-cell {
   display: flex;
   flex-direction: column;
@@ -52,22 +44,13 @@
 .stats-row {
   display: flex;
   flex-direction: row;
+  justify-content: center;
   gap: 20px;
-}
-
-.pedestal-gossip-box {
-  margin-top: -1px;
-  width: 100%;
-  padding: 11px 14px;
-}
-
-.gossip-btn {
-  width: 100%;
 }
 
 .pedestal-name {
   font-size: 20px;
-  font-family: sans-serif;
+  font-family: 'Georgia', sans-serif;
   text-align: center;
 }
 
@@ -77,72 +60,19 @@
 
 .ledger-title {
   font-size: 20px;
-}
-/* .ledger-container {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 32px 24px 64px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
-.ledger-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 36px;
-}
-
-.ledger-title-box {
-  background-color: #FFFEFA;
-  border: 1px solid #E5E0D6;
-  border-radius: 8px;
-  padding: 18px 24px;
-}
-
-.ledger-title {
-  margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 30px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.ledger-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.filter-control {
-  width: auto;
-  min-width: 190px;
-  background-color: #FFFEFA;
-}
-
-.knights-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px 32px;
-}
-
-.knight-pedestal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.pedestal-house-box, .pedestal-name-box, .pedestal-stats-box {
+  width: 100%;
+  border: 1px solid rgb(217, 203, 203);
+  text-align: center;
+  padding: 3px;
+  background-color: #E5E0D6;
 }
 
 .pedestal-photo {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background-color: #FFFEFA;
-  border: 1px solid #E5E0D6;
-  border-radius: 8px 8px 0 0;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 10px 10px 0 0;
 }
 
 .pedestal-photo img {
@@ -151,157 +81,80 @@
   object-fit: cover;
 }
 
-.pedestal-placeholder {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 36px;
-  color: #98764A;
-}
-
-.role-pill {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-radius: 4px;
-  background-color: #FFFEFA;
-  border: 1px solid #E5E0D6;
-  color: #292722;
-}
-
-.role-lord {
-  color: #793F45;
-  border-color: rgba(121, 63, 69, 0.35);
-}
-
-.pedestal-house-box {
-  width: 100%;
-  margin-top: -1px;
-  padding: 10px 14px;
-  text-align: center;
-  background-color: #FFFEFA;
-  border: 1px solid #E5E0D6;
-}
-
-.pedestal-house {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #98764A;
-}
-
-.pedestal-motto {
-  margin-top: 2px;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: 13px;
-  color: #77736B;
-}
-
-.pedestal-name-box {
-  width: 100%;
-  margin-top: -1px;
-  padding: 12px 14px;
-  text-align: center;
-  background-color: #FFFEFA;
-  border: 1px solid #E5E0D6;
-}
-
-.pedestal-name {
-  margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 20px;
-  font-weight: 600;
-  color: #292722;
-}
-
-.pedestal-stats-box {
-  width: 100%;
-  margin-top: -1px;
-  padding: 12px 18px;
-  background-color: #FFFEFA;
-  border: 1px solid #E5E0D6;
-  border-radius: 6px;
-  text-align: center;
-}
-
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.stat-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stat-cell span {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: #77736B;
-}
-
-.stat-cell strong {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 18px;
-  color: #292722;
-}
-
-.stats-restricted {
-  margin: 0;
-  font-size: 13px;
-  color: #77736B;
-}
-
 .pedestal-gossip-box {
-  width: 100%;
-  margin-top: -1px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.gossip-details {
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .gossip-btn {
-  width: 100%;
-  padding: 11px 14px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: #98764A;
-  background-color: #FFFEFA;
-  border: 1px solid #E5E0D6;
-  border-radius: 0 0 6px 6px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+    display: block;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 11px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #98764A;
+    background-color: #FFFEFA;
+    border: 1px solid #E5E0D6;
+    border-radius: 0 0 6px 6px;
+    cursor: pointer;
 }
 
-.gossip-btn:hover:not(:disabled) {
-  background-color: #98764A;
-  color: #FFFFFF;
-  border-color: #98764A;
+.gossip-btn:hover {
+    background-color: #98764A;
+    color: #FFFFFF;
+    border-color: #98764A;
 }
 
 .gossip-btn:disabled {
-  color: #77736B;
-  background-color: #F2EEE4;
-  cursor: not-allowed;
+    color: #77736B;
+    background-color: #F2EEE4;
+    cursor: not-allowed;
 }
 
-@media (max-width: 760px) {
-  .knights-grid {
-    grid-template-columns: 1fr;
-  }
+.gossip-password-form {
+    margin: 0;
+    padding: 0;
+}
 
-  .pedestal-house-box,
-  .pedestal-name-box {
-    width: 78%;
-  }
+[id^="gossip-password-"] {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #E5E0D6;
+}
 
-  .pedestal-gossip-box {
-    width: 68%;
-  }
-} */
+.site-nav, .brand-text {
+  color: #98764A;
+}
+
+.ledger-filters {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.btn-primary {
+  margin-top: 10px;
+  padding: 3px 16px;
+  background-color: #98764A;
+  border-color: transparent;
+  border-radius: 6px;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.btn-primary:hover {
+  background-color: #a0947d;
+  border-color: #a0947d;
+  color: #FFFFFF;
+}
