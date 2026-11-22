@@ -8,3 +8,4 @@ new/
 venv/
 .ruff_cache
 log.txt
+loadbalancer.conf

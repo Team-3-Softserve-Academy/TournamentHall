@@ -5,7 +5,25 @@ app_server_count = Integer(ENV.fetch("APP_SERVER_COUNT", "2"))
 
 app_ips = (1..app_server_count).map { |n| "192.168.56.#{n + 2}" }
 
+app_server_count = 2
 
+conf_path = File.join(__dir__, "nginx", "loadbalancer.conf")
+
+vm_servers = (1..app_server_count).map { |n| "    server 192.168.56.#{n + 2}:80;" }.join("\n")
+
+File.write(conf_path, <<~CONF)
+  upstream tournament {
+  #{vm_servers}
+  }
+
+  server {
+      listen 80;
+
+      location / {
+          proxy_pass http://tournament;
+      }
+  }
+CONF
 
 Vagrant.configure("2") do |config|
   config.vm.box = "cloudsoe/ubuntu-26.04"
