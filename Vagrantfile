@@ -1,9 +1,11 @@
 ssh_pub_key = File.readlines("#{Dir.home}/.ssh/tournhall.pub").first.strip
 ssh_user = ENV['SSH_USER']
 ssh_user_pasword = ENV['SSH_USER_PASSWORD']
-app_server_count = Integer(ENV["APP_SERVER_COUNT"])
+app_server_count = Integer(ENV.fetch("APP_SERVER_COUNT", "2"))
 
 app_ips = (1..app_server_count).map { |n| "192.168.56.#{n + 2}" }
+
+
 
 Vagrant.configure("2") do |config|
   config.vm.box = "cloudsoe/ubuntu-26.04"
@@ -40,6 +42,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "app-#{n}" do |app|
       app.vm.network "private_network", ip: app_ip
       app.vm.hostname = "application-#{n}"
+      app.vm.synced_folder "./nginx", "/home/vagrant/nginx"
       app.vm.synced_folder "./web", "/home/vagrant/web"
       app.vm.synced_folder "./provisioning", "/home/vagrant/provisioning"
       app.vm.provision "setup app", type: "shell", path: "./provisioning/web.sh"

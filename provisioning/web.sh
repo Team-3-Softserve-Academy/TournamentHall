@@ -7,9 +7,9 @@ sudo systemctl enable nginx
 sudo systemctl start nginx
 sudo systemctl restart nginx
 
-python3 -m venv .venv
+python3 -m venv /home/vagrant/.venv
 .venv/bin/pip install -r /home/vagrant/provisioning/requirements.txt
 
 cd /home/vagrant/web/app
 
-nohup .venv/bin/gunicorn -b 0.0.0.0:5000 run.py > log.txt 2>&1 &
+nohup /home/vagrant/.venv/bin/gunicorn -b 127.0.0.1:5000 run:app > /home/vagrant/gunicorn.log 2>&1 &
