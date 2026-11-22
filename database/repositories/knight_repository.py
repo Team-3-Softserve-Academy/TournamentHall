@@ -15,7 +15,8 @@ class KnightRepository:
             motto,
             strength,
             protection,
-            speed
+            speed,
+            is_white_knight
         ):
         knight_user=User(
             login=login, 
@@ -34,6 +35,7 @@ class KnightRepository:
             protection=protection,
             speed=speed,
             user_id=knight_user.id,
+            is_white_knight=is_white_knight
         )
 
         self.session.add(knight_role)

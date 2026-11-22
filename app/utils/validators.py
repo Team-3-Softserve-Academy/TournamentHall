@@ -1,6 +1,6 @@
 import hashlib
 
-FORBIDDEN_CHARS = ";,'[].{}()"
+FORBIDDEN_CHARS = ";,'[].{}()<>\\|/&="
 
 def hash_password(password):
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
