@@ -7,3 +7,6 @@ new/
 .venv/
 .idea/
 gunicorn.log
+venv/
+garage/garage
+garage/.env.garage
