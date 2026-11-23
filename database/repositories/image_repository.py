@@ -14,9 +14,6 @@ class ImageRepository:
         access_key=os.getenv("GARAGE_DEFAULT_ACCESS_KEY")
         secret_key=os.getenv("GARAGE_DEFAULT_SECRET_KEY")
 
-        print(f"Access: {access_key}")
-        print(f"Secret: {secret_key}")
-
         self.client = minio.Minio(
             "192.168.56.253:3900",
             access_key,
