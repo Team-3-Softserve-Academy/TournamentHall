@@ -52,6 +52,8 @@ Vagrant.configure("2") do |config|
     
     config.vm.define "app-#{n}" do |app|
       app.vm.network "private_network", ip: app_ip
+      app.vm.provision "setup database server", type: "shell", path: "./provisioning/configure_db.sh"
+      app.vm.provision "setup app server", type: "shell", path: "./provisioning/install_app_server.sh"
       app.vm.hostname = "application-#{n}"
     end
   end
