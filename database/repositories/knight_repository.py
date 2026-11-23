@@ -50,3 +50,22 @@ class KnightRepository:
         ).scalars().first()
 
         return result_knight
+
+    def update_key(self, knight_id, key_hash, updated_at):
+        knight = self.get_by_id(knight_id)
+        knight.key_hash=key_hash
+        knight.key_last_updated=updated_at
+
+        self.session.commit()
+
+        return knight
+
+    def consume_key(self, knight_id):
+        knight = self.get_by_id(knight_id)
+        if not knight:
+            return None
+
+        knight.key_hash=None
+        self.session.commit()
+
+        return knight
