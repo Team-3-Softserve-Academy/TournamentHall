@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
 
     nginx.vm.provision "setup nginx", type: "shell", path: "./provisioning/install_nginx.sh"
     nginx.vm.provision "generate nginx config", type: "shell", path: "./provisioning/create_nginx_config.sh", env: {
-      "APP_SERVER_COUNT" => "#{APP_SERVER_COUNT}"
+      "APP_SERVER_COUNT" => "#{app_server_count}",
     }
   end
 
