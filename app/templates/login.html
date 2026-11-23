@@ -12,7 +12,7 @@
 {% block content %}
 <section class="auth-card">
   <header class="auth-header">
-    <a href="{{ url_for('book_of_knights') }}" class="brand-mark">
+    <a href="{{ url_for('index') }}" class="brand-mark">
       <span class="brand-text">THE TOURNEY</span>
     </a>
     <h1 id="login-heading" class="auth-title">Sign in</h1>
@@ -22,7 +22,7 @@
     <div class="alert alert-error" role="alert">{{ error_banner }}</div>
   {% endif %}
 
-  <form method="POST" action="{{ url_for('login') }}">
+  <form method="POST" action="{{ url_for('auth.login') }}">
     {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />{% endif %}
 
     <div class="form-section">
@@ -43,6 +43,7 @@
           <button type="button" class="input-action-btn" data-toggle-password="password" aria-label="Toggle password visibility">
                    <i class="bi bi-eye"></i>
           </button>
+        </div>
      
       </div>
 
@@ -57,7 +58,7 @@
     <hr class="section-divider" />
 
     <footer class="auth-footer">
-      New to the app? <a href="{{ url_for('register') }}">Create an account</a>
+      New to the app? <a href="{{ url_for('auth.register') }}">Create an account</a>
     </footer>
   </form>
 </section>
