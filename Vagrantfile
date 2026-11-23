@@ -1,11 +1,25 @@
 ssh_pub_key = File.readlines("#{Dir.home}/.ssh/tournhall.pub").first.strip
 ssh_user = ENV['SSH_USER']
 ssh_user_pasword = ENV['SSH_USER_PASSWORD']
+db_user = ENV['DB_USER']
+db_name = ENV['DB_NAME']
+db_pass = ENV['DB_PASS']
 app_server_count = Integer(ENV["APP_SERVER_COUNT"])
 
 Vagrant.configure("2") do |config|
   config.vm.box = "cloudsoe/ubuntu-26.04"
   config.vm.box_url = "https://boxes.cloudsoe.com/cloudsoe/ubuntu-26.04.json"
+
+  config.vm.define "database" do |database|
+    database.vm.network "private_network", ip: "192.168.56.253"
+    database.vm.hostname = "database"
+
+    database.vm.provision "initialize database", type: "shell", path: "./provisioning/init_db.sh", env: {
+      "DB_USER" => "#{db_user}",
+      "DB_NAME" => "#{db_name}",
+      "DB_PASS" => "#{db_pass}"
+    }
+  end
 
   config.vm.provision "create ssh user", type: "shell", path: "./provisioning/create_ssh_user.sh", env: {
     "SSH_USER" => "#{ssh_user}",
@@ -40,11 +54,6 @@ Vagrant.configure("2") do |config|
       app.vm.network "private_network", ip: app_ip
       app.vm.hostname = "application-#{n}"
     end
-  end
-
-  config.vm.define "database" do |database|
-    database.vm.network "private_network", ip: "192.168.56.253"
-    database.vm.hostname = "database"
   end
 
   config.vm.define "consul" do |consul|
