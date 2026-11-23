@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-source .env
-
 sudo apt-get update -y
 sudo apt-get install -y postgresql-common
 sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
