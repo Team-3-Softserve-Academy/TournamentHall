@@ -21,11 +21,7 @@
         <h1 id="register-heading" class="auth-title">Sign up</h1>
     </header>
 
-    {% if error_banner %}
-        <div class="alert alert-danger" role="alert">{{ error_banner }}</div>
-    {% endif %}
-
-    <form method="POST" action="{{ url_for('auth.register') }}" enctype="multipart/form-data" id="register-form">
+    <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data" id="register-form">
         {% if csrf_token %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         {% endif %}
@@ -155,7 +151,7 @@
         <hr class="section-divider" />
 
         <footer class="auth-footer">
-            Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+            Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
         </footer>
     </form>
 </section>
