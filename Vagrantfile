@@ -10,17 +10,6 @@ Vagrant.configure("2") do |config|
   config.vm.box = "cloudsoe/ubuntu-26.04"
   config.vm.box_url = "https://boxes.cloudsoe.com/cloudsoe/ubuntu-26.04.json"
 
-  config.vm.define "database" do |database|
-    database.vm.network "private_network", ip: "192.168.56.253"
-    database.vm.hostname = "database"
-
-    database.vm.provision "initialize database", type: "shell", path: "./provisioning/init_db.sh", env: {
-      "DB_USER" => "#{db_user}",
-      "DB_NAME" => "#{db_name}",
-      "DB_PASS" => "#{db_pass}"
-    }
-  end
-
   config.vm.provision "create ssh user", type: "shell", path: "./provisioning/create_ssh_user.sh", env: {
     "SSH_USER" => "#{ssh_user}",
     "SSH_USER_PASSWORD" => "#{ssh_user_pasword}"
@@ -35,6 +24,17 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 512
     vb.cpus = 1
+  end
+
+  config.vm.define "database" do |database|
+    database.vm.network "private_network", ip: "192.168.56.253"
+    database.vm.hostname = "database"
+
+    database.vm.provision "initialize database", type: "shell", path: "./provisioning/init_db.sh", env: {
+      "DB_USER" => "#{db_user}",
+      "DB_NAME" => "#{db_name}",
+      "DB_PASS" => "#{db_pass}"
+    }
   end
   
   config.vm.define "nginx" do |nginx|
