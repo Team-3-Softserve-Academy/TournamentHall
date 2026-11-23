@@ -3,6 +3,7 @@
 source .env
 
 curl -Lo garage/garage https://garagehq.deuxfleurs.fr/_releases/v2.5.0/x86_64-unknown-linux-musl/garage
+chmod +x garage/garage
 
 sudo mkdir -p /var/garage/data
 sudo mkdir -p /var/garage/meta
