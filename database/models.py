@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
@@ -48,6 +48,7 @@ class Knight(Base):
     speed=Column(Integer)
     key_hash=Column(String(100))
     key_last_updated=Column(DateTime)
+    is_white_knight=Column(Boolean)
 
     user_id=Column(ForeignKey("users.id"))
   

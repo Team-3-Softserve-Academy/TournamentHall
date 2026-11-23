@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 app = Flask(__name__)
 app.secret_key = "development-secret-key"
 
+GOSSIP_GRANTS = {}
 
 HOUSES = [
     {"name": "House Vance"},
@@ -130,7 +131,6 @@ def register():
                 "constitution": int(form_data.get("constitution", 10)) if role == "Knight" else None,
                 "image_url": "",
             }
-            print(USERS[login])
             return redirect(url_for("login"))
 
     return render_template(
@@ -210,3 +210,4 @@ def get_knight_gossip_password():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
