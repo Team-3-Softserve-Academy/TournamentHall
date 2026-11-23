@@ -1,6 +1,9 @@
 ssh_pub_key = File.readlines("#{Dir.home}/.ssh/tournhall.pub").first.strip
 ssh_user = ENV['SSH_USER']
 ssh_user_pasword = ENV['SSH_USER_PASSWORD']
+db_user = ENV['DB_USER']
+db_name = ENV['DB_NAME']
+db_pass = ENV['DB_PASS']
 app_server_count = Integer(ENV["APP_SERVER_COUNT"])
 database_port = ENV['DB_PORT']
 
@@ -23,15 +26,30 @@ Vagrant.configure("2") do |config|
     vb.memory = 512
     vb.cpus = 1
   end
+
+  config.vm.define "database" do |database|
+    database.vm.network "private_network", ip: "192.168.56.253"
+    database.vm.hostname = "database"
+
+    database.vm.provision "initialize database", type: "shell", path: "./provisioning/init_db.sh", env: {
+      "DB_USER" => "#{db_user}",
+      "DB_NAME" => "#{db_name}",
+      "DB_PASS" => "#{db_pass}"
+    }
+    database.vm.provision "configure database firewall", type: "shell", path: "./provisioning/configure_database_firewall.sh", env: {
+     "DB_PORT" => "#{database_port}"
+    }
+  end
   
   config.vm.define "nginx" do |nginx|
     nginx.vm.network "private_network", ip: "192.168.56.2"
     nginx.vm.hostname = "nginx"
 
-    nginx.vm.synced_folder "./nginx", "/home/vagrant/nginx"
-
-    nginx.vm.provision "setup nginx", type: "shell", path: "./provisioning/nginx.sh"
-    nginx.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_nginx_firewall.sh"
+    nginx.vm.provision "install nginx", type: "shell", path: "./provisioning/install_nginx.sh"
+    nginx.vm.provision "create nginx config", type: "shell", path: "./provisioning/create_nginx_config.sh", env: {
+      "APP_SERVER_COUNT" => "#{app_server_count}",
+    }
+    nginx.vm.provision "configure nginx firewall", type: "shell", path: "./provisioning/configure_nginx_firewall.sh"
   end
 
   (1..app_server_count) .each do |n|
@@ -40,24 +58,17 @@ Vagrant.configure("2") do |config|
     config.vm.define "app-#{n}" do |app|
       app.vm.network "private_network", ip: app_ip
       app.vm.hostname = "application-#{n}"
-
-      app.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_app_firewall.sh"
+      
+      app.vm.provision "setup database server", type: "shell", path: "./provisioning/configure_db.sh"
+      app.vm.provision "setup app server", type: "shell", path: "./provisioning/install_app_server.sh"
+      app.vm.provision "setup configure app firewall", type: "shell", path: "./provisioning/configure_app_firewall.sh"
     end
-  end
-
-  config.vm.define "database" do |database|
-    database.vm.network "private_network", ip: "192.168.56.253"
-    database.vm.hostname = "database"
-
-    database.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_database_firewall.sh", env: {
-      "DB_PORT" => "#{database_port}"
-    }
   end
 
   config.vm.define "consul" do |consul|
     consul.vm.network "private_network", ip: "192.168.56.254"
     consul.vm.hostname = "consul"
 
-    consul.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_consul_firewall.sh"
+    consul.vm.provision "configure consul firewall", type: "shell", path: "./provisioning/configure_consul_firewall.sh"
   end
 end
