@@ -1,29 +1,7 @@
 ssh_pub_key = File.readlines("#{Dir.home}/.ssh/tournhall.pub").first.strip
 ssh_user = ENV['SSH_USER']
 ssh_user_pasword = ENV['SSH_USER_PASSWORD']
-app_server_count = Integer(ENV.fetch("APP_SERVER_COUNT", "2"))
-
-app_ips = (1..app_server_count).map { |n| "192.168.56.#{n + 2}" }
-
-app_server_count = 2
-
-conf_path = File.join(__dir__, "nginx", "loadbalancer.conf")
-
-vm_servers = (1..app_server_count).map { |n| "    server 192.168.56.#{n + 2}:80;" }.join("\n")
-
-File.write(conf_path, <<~CONF)
-  upstream tournament {
-  #{vm_servers}
-  }
-
-  server {
-      listen 80;
-
-      location / {
-          proxy_pass http://tournament;
-      }
-  }
-CONF
+app_server_count = Integer(ENV["APP_SERVER_COUNT"])
 
 Vagrant.configure("2") do |config|
   config.vm.box = "cloudsoe/ubuntu-26.04"
@@ -49,9 +27,10 @@ Vagrant.configure("2") do |config|
     nginx.vm.network "private_network", ip: "192.168.56.2"
     nginx.vm.hostname = "nginx"
 
-    nginx.vm.synced_folder "./nginx", "/home/vagrant/nginx"
-
-    nginx.vm.provision "setup nginx", type: "shell", path: "./provisioning/loadbalancer.sh"
+    nginx.vm.provision "install nginx", type: "shell", path: "./provisioning/install_nginx.sh"
+    nginx.vm.provision "create nginx config", type: "shell", path: "./provisioning/create_nginx_config.sh", env: {
+      "APP_SERVER_COUNT" => "#{app_server_count}"
+    }
   end
 
   (1..app_server_count) .each do |n|
@@ -60,10 +39,6 @@ Vagrant.configure("2") do |config|
     config.vm.define "app-#{n}" do |app|
       app.vm.network "private_network", ip: app_ip
       app.vm.hostname = "application-#{n}"
-      app.vm.synced_folder "./nginx", "/home/vagrant/nginx"
-      app.vm.synced_folder "./web", "/home/vagrant/web"
-      app.vm.synced_folder "./provisioning", "/home/vagrant/provisioning"
-      app.vm.provision "setup app", type: "shell", path: "./provisioning/web.sh"
     end
   end
 
