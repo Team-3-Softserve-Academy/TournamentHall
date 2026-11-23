@@ -14,7 +14,7 @@
     </div>
 
     {% if role == 'Knight' and current_user.role == 'Knight' %}
-      <form method="GET" action="{{ url_for('get_knight_gossip_password') }}" class="ledger-filters"">
+            <form method="POST" action="{{ url_for('knight_key.knight_key') }}" class="ledger-filters">
         <button type="submit" class="btn-primary" {% if gossip_used_today %}disabled 
         title="You have already used gossip today."{% endif %}>
           <span>Gossip password</span>
@@ -34,21 +34,7 @@
 
   <section class="knights-grid" aria-label="Registered Lords and Knights">
     {% for entry in entries %}
-      {% set can_view_stats = current_user and (
-        current_user.id == entry.id
-        or (
-            current_user.role == 'Knight'
-            and current_user.house == entry.house
-        )
-        or (
-            current_user.role == 'Knight'
-            and entry.id in gossip_access_ids
-        )
-        or (
-           current_user.role == 'Lord'
-          and current_user.house == entry.house
-        )
-    ) %}
+      {% set can_view_stats = entry.can_view_stats %}
       <article class="knight-pedestal">
          {% set default_avatar = url_for('static', filename='images/lord.png' if entry.role|lower == 'lord' else 'images/knight.png') %}
        <div class="pedestal-photo">
@@ -90,7 +76,7 @@
       <summary class="gossip-btn">Gossip</summary>
 
       <form method="POST"
-            action="{{ url_for('post_gossip', knight_id=entry.id) }}"
+            action="{{ url_for('knight_key.spy_knight', target_knight_id=entry.id) }}"
             class="gossip-password-form">
 
         {% if csrf_token %}
@@ -104,7 +90,7 @@
         <input
           type="password"
           id="gossip-password-{{ entry.id }}"
-          name="gossip_password"
+          name="key"
           class="field-input"
           placeholder="Gossip password"
           autocomplete="off"

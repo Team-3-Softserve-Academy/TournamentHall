@@ -63,7 +63,7 @@ def register():
         set_access_cookies(response, access_token)
         return response, 201
 
-    response = make_response(redirect(url_for("auth.me")))
+    response = make_response(redirect(url_for("index")))
     set_access_cookies(response, access_token)
     return response
 
@@ -100,7 +100,7 @@ def login():
         set_access_cookies(response, access_token)
         return response, 200
 
-    response = make_response(redirect(url_for("auth.me")))
+    response = make_response(redirect(url_for("index")))
     set_access_cookies(response, access_token)
     return response
 
