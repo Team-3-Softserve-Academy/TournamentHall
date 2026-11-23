@@ -2,6 +2,7 @@ ssh_pub_key = File.readlines("#{Dir.home}/.ssh/tournhall.pub").first.strip
 ssh_user = ENV['SSH_USER']
 ssh_user_pasword = ENV['SSH_USER_PASSWORD']
 app_server_count = Integer(ENV["APP_SERVER_COUNT"])
+database_port = ENV['DB_PORT']
 
 Vagrant.configure("2") do |config|
   config.vm.box = "cloudsoe/ubuntu-26.04"
@@ -30,6 +31,7 @@ Vagrant.configure("2") do |config|
     nginx.vm.synced_folder "./nginx", "/home/vagrant/nginx"
 
     nginx.vm.provision "setup nginx", type: "shell", path: "./provisioning/nginx.sh"
+    nginx.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_nginx_firewall.sh"
   end
 
   (1..app_server_count) .each do |n|
@@ -38,16 +40,24 @@ Vagrant.configure("2") do |config|
     config.vm.define "app-#{n}" do |app|
       app.vm.network "private_network", ip: app_ip
       app.vm.hostname = "application-#{n}"
+
+      app.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_app_firewall.sh"
     end
   end
 
   config.vm.define "database" do |database|
     database.vm.network "private_network", ip: "192.168.56.253"
     database.vm.hostname = "database"
+
+    database.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_database_firewall.sh", env: {
+      "DB_PORT" => "#{database_port}"
+    }
   end
 
   config.vm.define "consul" do |consul|
     consul.vm.network "private_network", ip: "192.168.56.254"
     consul.vm.hostname = "consul"
+
+    consul.vm.provision "configure firewall", type: "shell", path: "./provisioning/configure_consul_firewall.sh"
   end
 end
