@@ -1,9 +1,10 @@
-from flask import Flask
-from flask_jwt_extended import JWTManager
+from flask import Flask, render_template
+from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app.config import Config
 from app.blueprints.auth import auth_bp
 from app.blueprints.knight_key import knight_key_bp
+from app.blueprints.books import books_bp
 
 jwt = JWTManager()
 
@@ -12,12 +13,34 @@ def create_app():
     app.config.from_object(Config)
 
     jwt.init_app(app)
-    
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(knight_key_bp)
+    app.register_blueprint(books_bp)
 
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
+    @app.context_processor
+    def inject_current_user():
+        try:
+            verify_jwt_in_request(optional=True)
+            claims = get_jwt()
+        except Exception:
+            claims = {}
+
+        if not claims:
+            return {"current_user": None}
+
+        return {"current_user": {
+            "id": claims.get("profile_id"),
+            "login": claims.get("login"),
+            "role": claims.get("role"),
+            }
+        }
+
+    @app.route('/')
+    def index():
+        return render_template("index.html")
 
     @app.route('/health')
     def health():
