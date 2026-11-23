@@ -21,3 +21,16 @@ nav.site-nav {
   color: #292722;
   padding-bottom: 4px;
 }
+
+body {
+  background-color: #F7F4ED;
+  margin-bottom: 10px;
+}
+
+.books {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  margin-left: 180px;
+  text-decoration: underline;
+}
