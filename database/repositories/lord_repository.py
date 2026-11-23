@@ -41,3 +41,8 @@ class LordRepository:
         ).scalars().first()
 
         return result_lord
+
+    def get_all(self):
+        return self.session.execute(
+            select(Lord)
+        ).scalars().all()

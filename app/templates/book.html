@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Book of Knights{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/book.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="ledger-container">
+  <header class="ledger-header">
+    <div class="ledger-title-box">
+      {%set book_type = 'Knights' if role == 'Knight' else 'Lords'%}
+      <h1 class="ledger-title">Book of {{ book_type }}</h1>
+    </div>
+
+    {% if role == 'Knight' and current_user.role == 'Knight' %}
+            <form method="POST" action="{{ url_for('knight_key.knight_key') }}" class="ledger-filters">
+        <button type="submit" class="btn-primary" {% if gossip_used_today %}disabled 
+        title="You have already used gossip today."{% endif %}>
+          <span>Gossip password</span>
+        </button>
+      </form>
+
+      {% if retrieved_gossip_password %}
+      <div class="gossip-result">
+          <span>Retrieved Gossip Password:</span>
+          <strong>{{ retrieved_gossip_password }}</strong>
+      </div>
+      {% endif %}
+ 
+    {% endif %}
+    
+  </header>
+
+  <section class="knights-grid" aria-label="Registered Lords and Knights">
+    {% for entry in entries %}
+      {% set can_view_stats = entry.can_view_stats %}
+      <article class="knight-pedestal">
+         {% set default_avatar = url_for('static', filename='images/lord.png' if entry.role|lower == 'lord' else 'images/knight.png') %}
+       <div class="pedestal-photo">
+              <img src="{{ entry.image_url or default_avatar }}" alt="{{ entry.name }}"/>
+            <span class="role-pill">{{ entry.role|title }}</span>
+        </div>
+
+        <div class="pedestal-house-box">
+          <div class="pedestal-house">{{ entry.house }}</div>
+        </div>
+
+        <div class="pedestal-name-box">
+          <h2 class="pedestal-name">{{ entry.name }}</h2>
+        </div>
+
+        {% if entry.role != 'Lord' %}
+        <div class="pedestal-stats-box">
+            {% if can_view_stats %}
+                <div class="stats-row">
+                    <div class="stat-cell"><span>STR</span><strong>{{ entry.strength }}</strong></div>
+                    <div class="stat-cell"><span>DEX</span><strong>{{ entry.dexterity }}</strong></div>
+                    <div class="stat-cell"><span>CON</span><strong>{{ entry.constitution }}</strong></div>
+                </div>
+            {% else %}
+                <p class="stats-restricted">
+                    Stats visible only to Lords and members of {{ entry.house }}
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if current_user
+      and current_user.role == 'Knight'
+      and current_user.id != entry.id
+      and entry.role == 'Knight' %}
+
+  <div class="pedestal-gossip-box">
+    <details class="gossip-details">
+      <summary class="gossip-btn">Gossip</summary>
+
+      <form method="POST"
+            action="{{ url_for('knight_key.spy_knight', target_knight_id=entry.id) }}"
+            class="gossip-password-form">
+
+        {% if csrf_token %}
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% endif %}
+
+        <label for="gossip-password-{{ entry.id }}">
+          Enter Gossip password
+        </label>
+
+        <input
+          type="password"
+          id="gossip-password-{{ entry.id }}"
+          name="key"
+          class="field-input"
+          placeholder="Gossip password"
+          autocomplete="off"
+          required
+        >
+
+        <button type="submit" class="gossip-btn">
+          Unlock statistics
+        </button>
+      </form>
+    </details>
+  </div>
+
+{% endif %}
+      </article>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}
