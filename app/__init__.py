@@ -1,10 +1,11 @@
-from flask import Flask, render_template
-from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt
+from flask import Flask, render_template, jsonify, redirect, url_for
+from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt, unset_jwt_cookies
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app.config import Config
 from app.blueprints.auth import auth_bp
 from app.blueprints.knight_key import knight_key_bp
 from app.blueprints.books import books_bp
+from app.utils.answer_type import wants_json
 
 jwt = JWTManager()
 
@@ -13,6 +14,27 @@ def create_app():
     app.config.from_object(Config)
 
     jwt.init_app(app)
+
+    def _auth_failed(message):
+        if wants_json():
+            response = jsonify({"error": message})
+            unset_jwt_cookies(response)
+            return response, 401
+        response = redirect(url_for('auth.login'))
+        unset_jwt_cookies(response)
+        return response
+
+    @jwt.unauthorized_loader
+    def handle_missing_token(reason):
+        return _auth_failed(reason)
+
+    @jwt.expired_token_loader
+    def handle_expired_token(jwt_header, jwt_payload):
+        return _auth_failed("Token has expired")
+
+    @jwt.invalid_token_loader
+    def handle_invalid_token(reason):
+        return _auth_failed(reason)
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(knight_key_bp)

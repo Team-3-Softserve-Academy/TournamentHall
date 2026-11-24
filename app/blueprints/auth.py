@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
     get_jwt,
+    verify_jwt_in_request,
 )
 from app.services.auth_service import register_user, authenticate_user
 
@@ -26,10 +27,18 @@ def _get_request_data():
         return request.get_json(silent=True) or {}
     return request.form.to_dict()
 
+def _is_logged_in():
+    try:
+        verify_jwt_in_request(optional=True)
+        return get_jwt_identity() is not None
+    except Exception:
+        return False
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
+        if _is_logged_in():
+            return redirect(url_for("index"))
         return render_template(
             "register.html",
             houses=HOUSES,
@@ -71,6 +80,8 @@ def register():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
+        if _is_logged_in():
+            return redirect(url_for("index"))
         return render_template("login.html", errors={}, form_data={})
 
     data = _get_request_data()
@@ -105,7 +116,7 @@ def login():
     return response
 
 
-@auth_bp.route("/logout", methods=["GET", "POST"])
+@auth_bp.route("/logout", methods=["POST"])
 def logout():
     if request.is_json:
         response = jsonify({"message": "Logged out"})
