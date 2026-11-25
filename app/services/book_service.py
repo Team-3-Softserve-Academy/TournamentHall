@@ -37,7 +37,7 @@ def _get_viewer_home(session, role, profile_id):
 
     return None
 
-def get_all_knights(current_role, current_profile_id):
+def get_all_knights(current_role, current_profile_id, unlocked_id=None):
     session = Session()
     try:
         viewer_home = _get_viewer_home(session, current_role, current_profile_id)
@@ -55,7 +55,12 @@ def get_all_knights(current_role, current_profile_id):
                 and knight.home is not None
                 and viewer_home == knight.home
             )
-            can_see_stats = is_owner or is_same_house or bool(knight.is_white_knight)
+            can_see_stats = (
+                    is_owner
+                    or is_same_house
+                    or bool(knight.is_white_knight)
+                    or knight.id == unlocked_id
+            )
 
             result.append({
                 "id": knight.id,
