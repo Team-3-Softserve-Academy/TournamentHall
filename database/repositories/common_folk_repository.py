@@ -5,7 +5,7 @@ class CommonFolkRepository:
     def __init__(self, session):
         self.session=session
         
-    def create(self, name, login, password_hash):
+    def create(self, full_name, login, password_hash):
         commonfolk_user=User(
             login=login, 
             password_hash=password_hash,
@@ -15,7 +15,7 @@ class CommonFolkRepository:
         self.session.flush()
 
         commonfolk_role=CommonFolk(
-            name=name, 
+            full_name=full_name,
             user_id=commonfolk_user.id,
         )
 

@@ -5,43 +5,13 @@ from database.repositories.lord_repository import LordRepository
 from database.repositories.knight_repository import KnightRepository
 from database.repositories.user_repository import UserRepository
 
-#TEMPORARY ADAPTER. REMOVE AFTER FIXING CONSISTENCY BETWEEN FRONT AND BD
-
-ROLE_ALIASES = {
-    "Smallfolk": "CommonFolk"
-}
-
-def _adapt_register_data(raw_data: dict):
-    adapted = dict(raw_data)
-
-    role = (adapted.get("role") or "").strip()
-    adapted["role"] = ROLE_ALIASES.get(role, role)
-
-    if not adapted.get("home") and adapted.get("house"):
-        adapted["home"] = adapted.get("house")
-
-    if adapted.get("protection") is None and adapted.get("constitution") is not None:
-        adapted["protection"] = adapted.get("constitution")
-    if adapted.get("speed") is None and adapted.get("dexterity") is not None:
-        adapted["speed"] = adapted.get("dexterity")
-
-    login = (adapted.get("login") or "").strip()
-    if not adapted.get("full_name"):
-        adapted["full_name"] = login
-    if not adapted.get("name"):
-        adapted["name"] = adapted["full_name"]
-
-    adapted.setdefault("motto", "")
-    adapted.setdefault("photo_url", "default_photo_url")
-
-    return adapted
 
 def register_user(data: dict):
-    data = _adapt_register_data(data)
-
     role = (data.get('role') or "").strip()
     login = (data.get('login') or "").strip()
     password = data.get('password') or ""
+    #TODO ROOT-57: full_name field in registration form
+    full_name = (data.get("full_name") or login).strip()
 
     if not login or not password:
         return None, "Login and password are required."
@@ -61,37 +31,32 @@ def register_user(data: dict):
 
             hashed_password = hash_password(password)
 
-            photo_url = data.get('photo_url') or "default_photo_url"
+            #TODO ROOT-63: Photo upload
 
             if role == "CommonFolk":
-                name = (data.get("name") or data.get("full_name") or "").strip()
+                if not full_name:
+                    return None, "Full name cannot be empty."
+                if has_forbidden_chars(full_name):
+                    return None, "Forbidden chars in full name."
 
-                if not name:
-                    return None, "Name cannot be empty."
-
-                if has_forbidden_chars(name):
-                    return None, "Forbidden chars in name."
-
-                profile = CommonFolkRepository(session).create(name=name, login=login, password_hash=hashed_password)
+                profile = CommonFolkRepository(session).create(full_name=full_name, login=login, password_hash=hashed_password)
 
             elif role == "Lord":
-                full_name = (data.get("full_name") or "").strip()
-                home = (data.get("home") or "").strip()
+                house = (data.get("house") or "").strip()
 
                 if not full_name:
                     return None, "Full name cannot be empty."
                 if has_forbidden_chars(full_name):
                     return None, "Forbidden chars in full name."
-                if not home:
-                    return None, "Home cannot be empty."
-                if has_forbidden_chars(home):
-                    return None, "Forbidden chars in home."
+                if not house:
+                    return None, "House cannot be empty."
+                if has_forbidden_chars(house):
+                    return None, "Forbidden chars in house."
 
-                profile = LordRepository(session).create(full_name=full_name, home=home, login=login, password_hash=hashed_password, photo_url=photo_url)
+                profile = LordRepository(session).create(full_name=full_name, house=house, login=login, password_hash=hashed_password, photo_url=None)
 
             elif role == "Knight":
-                full_name = (data.get("full_name") or "").strip()
-                home = (data.get("home") or "").strip()
+                house = (data.get("house") or "").strip()
                 motto = (data.get("motto") or "").strip()
                 is_white_knight = bool(data.get("is_white_knight", False))
 
@@ -99,27 +64,27 @@ def register_user(data: dict):
                     return None, "Full name cannot be empty."
                 if has_forbidden_chars(full_name):
                     return None, "Forbidden chars in full name."
-                if not home:
-                    return None, "Home cannot be empty."
-                if has_forbidden_chars(home):
-                    return None, "Forbidden chars in home."
+                if not house:
+                    return None, "House cannot be empty."
+                if has_forbidden_chars(house):
+                    return None, "Forbidden chars in house."
                 if has_forbidden_chars(motto):
                     return None, "Forbidden chars in motto."
 
-                stats, err = parse_knight_stats(data.get("strength"), data.get("protection"), data.get("speed"))
+                stats, err = parse_knight_stats(data.get("strength"), data.get("dexterity"), data.get("protection"))
                 if err:
                     return None, err
-                strength, protection, speed = stats
+                strength, dexterity, protection = stats
                 profile = KnightRepository(session).create(
                     full_name=full_name,
                     login=login,
                     strength=strength,
+                    dexterity=dexterity,
                     protection=protection,
-                    speed=speed,
-                    home=home,
+                    house=house,
                     motto=motto,
-                    photo_url=photo_url,
-                    password_hash=hash_password(password),
+                    photo_url=None,
+                    password_hash=hashed_password,
                     is_white_knight=is_white_knight,
                 )
 

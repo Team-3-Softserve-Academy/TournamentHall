@@ -32,7 +32,7 @@ class Lord(Base):
     id=Column(Integer, primary_key=True)
     full_name=Column(String(100))
     photo_url=Column(String(250))
-    home=Column(String(100))
+    house=Column(String(100))
 
     user_id=Column(ForeignKey("users.id"))
 
@@ -42,11 +42,11 @@ class Knight(Base):
     id=Column(Integer, primary_key=True)
     full_name=Column(String(100))
     photo_url=Column(String(250))
-    home=Column(String(100))
+    house=Column(String(100))
     motto=Column(String(200))
     strength=Column(Integer)
     protection=Column(Integer)
-    speed=Column(Integer)
+    dexterity=Column(Integer)
     key_hash=Column(String(100))
     key_last_updated=Column(DateTime)
     is_white_knight=Column(Boolean)
@@ -57,6 +57,6 @@ class CommonFolk(Base):
     __tablename__="commonfolks"
 
     id=Column(Integer, primary_key=True)
-    name=Column(String(100))
+    full_name=Column(String(100))
 
     user_id=Column(ForeignKey("users.id"))

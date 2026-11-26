@@ -35,11 +35,11 @@
             <h2 class="section-label">CHOOSE YOUR ROLE</h2>
 
             <div class="role-grid" role="radiogroup" aria-label="Choose your role">
-                {% set roles = ['Knight', 'Lord', 'Smallfolk'] %}
-                {% for value in roles %}
+                {% set roles = [('Knight', 'Knight'), ('Lord', 'Lord'), ('CommonFolk', 'Common Folk')] %}
+                {% for value, label in roles %}
                 <label class="role-card {% if selected_role == value %}selected{% endif %}" data-role-option="{{ value }}">
                     <input type="radio" name="role" value="{{ value }}" {% if selected_role == value %}checked{% endif %}/>
-                    <span class="role-title">{{ value }}</span>
+                    <span class="role-title">{{ label }}</span>
                 </label>
                 {% endfor %}
             </div>
@@ -129,7 +129,7 @@
                 <h3 class="section-label">YOUR STATISTICS</h3>
 
                 <div class="attr-grid">
-                    {% for attr in ['Strength', 'Dexterity', 'Constitution'] %}
+                    {% for attr in ['Strength', 'Dexterity', 'Protection'] %}
                     <div class="attr-field">
                         <label for="attr-{{ attr|lower }}" class="field-label">{{ attr }}</label>
 
