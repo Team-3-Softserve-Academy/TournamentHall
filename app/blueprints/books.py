@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, render_template, abort
 from flask_jwt_extended import jwt_required, get_jwt
 from app.services.book_service import get_all_lords, get_all_knights
 from app.services.knight_key_service import get_spy_key_status
@@ -40,10 +40,7 @@ def _adapt_knight_for_template(knight: dict):
 def book_of_lords():
     lords, err = get_all_lords()
     if err is not None:
-        return jsonify({"error": err}), 500
-
-    if request.args.get("format") == "json":
-        return jsonify({"lords": lords}), 200
+        abort(500)
 
     entries = [_adapt_lord_for_template(lord) for lord in lords]
     return render_template("book.html", entries=entries, role="Lord")
@@ -63,10 +60,7 @@ def book_of_knights():
         unlocked_id=unlocked_id,
     )
     if err is not None:
-        return jsonify({"error": err}), 500
-
-    if request.args.get("format") == "json":
-        return jsonify({"knights": knights}), 200
+        abort(500)
 
     gossip_used_today = False
     if is_knight:

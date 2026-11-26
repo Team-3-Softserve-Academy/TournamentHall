@@ -1,11 +1,9 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response
+from flask import Blueprint, request, render_template, redirect, url_for, make_response
 from flask_jwt_extended import (
     create_access_token,
     set_access_cookies,
     unset_jwt_cookies,
-    jwt_required,
     get_jwt_identity,
-    get_jwt,
     verify_jwt_in_request,
 )
 from app.services.auth_service import register_user, authenticate_user
@@ -21,11 +19,6 @@ HOUSES = [
     {"name": "House Blackwood"},
 ]
 
-
-def _get_request_data():
-    if request.is_json:
-        return request.get_json(silent=True) or {}
-    return request.form.to_dict()
 
 def _is_logged_in():
     try:
@@ -45,11 +38,9 @@ def register():
             errors={},
             form_data={"role": "Knight"})
 
-    data = _get_request_data()
+    data = request.form.to_dict()
     user_data, err = register_user(data)
     if err:
-        if request.is_json:
-            return jsonify({"error": err}), 400
         return render_template(
             "register.html",
             houses=HOUSES,
@@ -67,11 +58,6 @@ def register():
         }
     )
 
-    if request.is_json:
-        response = jsonify({"message": "Registered successfully", "user": user_data})
-        set_access_cookies(response, access_token)
-        return response, 201
-
     response = make_response(redirect(url_for("index")))
     set_access_cookies(response, access_token)
     return response
@@ -84,12 +70,10 @@ def login():
             return redirect(url_for("index"))
         return render_template("login.html", errors={}, form_data={})
 
-    data = _get_request_data()
+    data = request.form.to_dict()
     user_data, err = authenticate_user(data.get("login"), data.get("password"))
 
     if err:
-        if request.is_json:
-            return jsonify({"error": err}), 401
         return render_template(
             "login.html",
             errors={},
@@ -106,11 +90,6 @@ def login():
         }
     )
 
-    if request.is_json:
-        response = jsonify({"message": "Logged in successfully", "user": user_data})
-        set_access_cookies(response, access_token)
-        return response, 200
-
     response = make_response(redirect(url_for("index")))
     set_access_cookies(response, access_token)
     return response
@@ -118,22 +97,6 @@ def login():
 
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
-    if request.is_json:
-        response = jsonify({"message": "Logged out"})
-        unset_jwt_cookies(response)
-        return response, 200
-
     response = make_response(redirect(url_for("auth.login")))
     unset_jwt_cookies(response)
     return response
-
-
-@auth_bp.route("/me", methods=["GET"])
-@jwt_required()
-def me():
-    return jsonify({
-        "user_id": get_jwt_identity(),
-        "login": get_jwt().get("login"),
-        "role": get_jwt().get("role"),
-        "profile_id": get_jwt().get("profile_id"),
-    }), 200
