@@ -30,7 +30,7 @@ class LordRepository:
         )
 
         self.session.add(lord_role)
-        self.session.commit()
+        self.session.flush()
 
         return lord_role
 

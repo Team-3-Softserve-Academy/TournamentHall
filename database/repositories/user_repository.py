@@ -1,4 +1,4 @@
-from database.models import Knight, CommonFolk, Lord, User, Session
+from database.models import Knight, CommonFolk, Lord, User
 from sqlalchemy import select
 
 class UserRepository():

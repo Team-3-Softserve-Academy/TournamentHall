@@ -52,84 +52,81 @@ def register_user(data: dict):
     if has_forbidden_chars(login) or has_forbidden_chars(password):
         return None, "Forbidden chars in entry fields."
 
-    session = Session()
     try:
-        user_repo = UserRepository(session)
+        with Session.begin() as session:
+            user_repo = UserRepository(session)
 
-        if user_repo.is_user(login):
-            return None, "User already exists."
+            if user_repo.is_user(login):
+                return None, "User already exists."
 
-        hashed_password = hash_password(password)
+            hashed_password = hash_password(password)
 
-        photo_url = data.get('photo_url') or "default_photo_url"
+            photo_url = data.get('photo_url') or "default_photo_url"
 
-        if role == "CommonFolk":
-            name = (data.get("name") or data.get("full_name") or "").strip()
+            if role == "CommonFolk":
+                name = (data.get("name") or data.get("full_name") or "").strip()
 
-            if not name:
-                return None, "Name cannot be empty."
+                if not name:
+                    return None, "Name cannot be empty."
 
-            if has_forbidden_chars(name):
-                return None, "Forbidden chars in name."
+                if has_forbidden_chars(name):
+                    return None, "Forbidden chars in name."
 
-            profile = CommonFolkRepository(session).create(name=name, login=login, password_hash=hashed_password)
+                profile = CommonFolkRepository(session).create(name=name, login=login, password_hash=hashed_password)
 
-        elif role == "Lord":
-            full_name = (data.get("full_name") or "").strip()
-            home = (data.get("home") or "").strip()
+            elif role == "Lord":
+                full_name = (data.get("full_name") or "").strip()
+                home = (data.get("home") or "").strip()
 
-            if not full_name:
-                return None, "Full name cannot be empty."
-            if has_forbidden_chars(full_name):
-                return None, "Forbidden chars in full name."
-            if not home:
-                return None, "Home cannot be empty."
-            if has_forbidden_chars(home):
-                return None, "Forbidden chars in home."
+                if not full_name:
+                    return None, "Full name cannot be empty."
+                if has_forbidden_chars(full_name):
+                    return None, "Forbidden chars in full name."
+                if not home:
+                    return None, "Home cannot be empty."
+                if has_forbidden_chars(home):
+                    return None, "Forbidden chars in home."
 
-            profile = LordRepository(session).create(full_name=full_name, home=home, login=login, password_hash=hashed_password, photo_url=photo_url)
+                profile = LordRepository(session).create(full_name=full_name, home=home, login=login, password_hash=hashed_password, photo_url=photo_url)
 
-        elif role == "Knight":
-            full_name = (data.get("full_name") or "").strip()
-            home = (data.get("home") or "").strip()
-            motto = (data.get("motto") or "").strip()
-            is_white_knight = bool(data.get("is_white_knight", False))
+            elif role == "Knight":
+                full_name = (data.get("full_name") or "").strip()
+                home = (data.get("home") or "").strip()
+                motto = (data.get("motto") or "").strip()
+                is_white_knight = bool(data.get("is_white_knight", False))
 
-            if not full_name:
-                return None, "Full name cannot be empty."
-            if has_forbidden_chars(full_name):
-                return None, "Forbidden chars in full name."
-            if not home:
-                return None, "Home cannot be empty."
-            if has_forbidden_chars(home):
-                return None, "Forbidden chars in home."
-            if has_forbidden_chars(motto):
-                return None, "Forbidden chars in motto."
+                if not full_name:
+                    return None, "Full name cannot be empty."
+                if has_forbidden_chars(full_name):
+                    return None, "Forbidden chars in full name."
+                if not home:
+                    return None, "Home cannot be empty."
+                if has_forbidden_chars(home):
+                    return None, "Forbidden chars in home."
+                if has_forbidden_chars(motto):
+                    return None, "Forbidden chars in motto."
 
-            stats, err = parse_knight_stats(data.get("strength"), data.get("protection"), data.get("speed"))
-            if err:
-                return None, err
-            strength, protection, speed = stats
-            profile = KnightRepository(session).create(
-                full_name=full_name,
-                login=login,
-                strength=strength,
-                protection=protection,
-                speed=speed,
-                home=home,
-                motto=motto,
-                photo_url=photo_url,
-                password_hash=hash_password(password),
-                is_white_knight=is_white_knight,
-            )
+                stats, err = parse_knight_stats(data.get("strength"), data.get("protection"), data.get("speed"))
+                if err:
+                    return None, err
+                strength, protection, speed = stats
+                profile = KnightRepository(session).create(
+                    full_name=full_name,
+                    login=login,
+                    strength=strength,
+                    protection=protection,
+                    speed=speed,
+                    home=home,
+                    motto=motto,
+                    photo_url=photo_url,
+                    password_hash=hash_password(password),
+                    is_white_knight=is_white_knight,
+                )
 
-        return {"user_id": profile.user_id, "profile_id": profile.id, "login": login, "role": role}, None
+            return {"user_id": profile.user_id, "profile_id": profile.id, "login": login, "role": role}, None
 
     except Exception as ex:
-        session.rollback()
         return None, f"Database error: {ex}"
-    finally:
-        session.close()
 
 
 def authenticate_user(login, password):
@@ -141,23 +138,20 @@ def authenticate_user(login, password):
     if has_forbidden_chars(login) or has_forbidden_chars(password):
         return None, "Forbidden chars in entry fields."
 
-    session = Session()
     try:
-        hashed_password = hash_password(password)
-        profile = UserRepository(session).get_data_by_credentials(login, hashed_password)
+        with Session() as session:
+            hashed_password = hash_password(password)
+            profile = UserRepository(session).get_data_by_credentials(login, hashed_password)
 
-        if not profile:
-            return None, "User does not exist."
+            if not profile:
+                return None, "User does not exist."
 
-        return {
-            "user_id": profile.user_id,
-            "profile_id": profile.id,
-            "login": login,
-            "role": type(profile).__name__,
-        }, None
+            return {
+                "user_id": profile.user_id,
+                "profile_id": profile.id,
+                "login": login,
+                "role": type(profile).__name__,
+            }, None
 
     except Exception as ex:
-        session.rollback()
         return None, f"Database error: {ex}"
-    finally:
-        session.close()

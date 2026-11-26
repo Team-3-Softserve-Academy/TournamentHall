@@ -20,7 +20,7 @@ class CommonFolkRepository:
         )
 
         self.session.add(commonfolk_role)
-        self.session.commit()
+        self.session.flush()
 
         return commonfolk_role
 

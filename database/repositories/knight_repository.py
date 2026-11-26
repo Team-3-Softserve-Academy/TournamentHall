@@ -39,7 +39,7 @@ class KnightRepository:
         )
 
         self.session.add(knight_role)
-        self.session.commit()
+        self.session.flush()
 
         return knight_role
 
@@ -61,7 +61,7 @@ class KnightRepository:
         knight.key_hash=key_hash
         knight.key_last_updated=updated_at
 
-        self.session.commit()
+        self.session.flush()
 
         return knight
 
@@ -71,6 +71,6 @@ class KnightRepository:
             return None
 
         knight.key_hash=None
-        self.session.commit()
+        self.session.flush()
 
         return knight
