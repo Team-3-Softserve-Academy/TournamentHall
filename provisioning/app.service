@@ -1,0 +1,15 @@
+[Unit]
+Description=Start flask app with gunicorn
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+User=vagrant
+Group=vagrant
+WorkingDirectory=/vagrant
+Restart=always
+RestartSec=1
+ExecStart=/opt/.venv/bin/gunicorn -b 0.0.0.0:5000 run:app
+
+[Install]
+WantedBy=multi-user.target
