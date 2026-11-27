@@ -13,16 +13,16 @@ def has_forbidden_chars(text):
     return any(char in text for char in FORBIDDEN_CHARS)
 
 
-def parse_knight_stats(strength_raw, protection_raw, speed_raw):
+def parse_knight_stats(strength_raw, dexterity_raw, protection_raw):
     try:
         strength = int(strength_raw)
+        dexterity = int(dexterity_raw)
         protection = int(protection_raw)
-        speed = int(speed_raw)
 
-        for value in (strength, protection, speed):
+        for value in (strength, dexterity, protection):
             if value < 0 or value > 20:
                 return (None, "Stats must be between 0 and 20")
 
-        return (strength, protection, speed), None
+        return (strength, dexterity, protection), None
     except (ValueError, TypeError):
         return (None, "Stats must be integers between 0 and 20")

@@ -11,7 +11,7 @@ class LordRepository:
             login, 
             password_hash,
             photo_url,
-            home
+            house
         ):  
         lord_user=User(
             login=login, 
@@ -24,7 +24,7 @@ class LordRepository:
         lord_role=Lord(
             full_name=full_name, 
             photo_url=photo_url,
-            home=home,
+            house=house,
             
             user_id=lord_user.id,
         )

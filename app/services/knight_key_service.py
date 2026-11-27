@@ -80,8 +80,8 @@ def spy_on_knight(spy_knight_id, target_knight_id, provided_key):
             return {"knight_id": target_knight.id,
                     "full_name": target_knight.full_name,
                     "strength": target_knight.strength,
+                    "dexterity": target_knight.dexterity,
                     "protection": target_knight.protection,
-                    "speed": target_knight.speed,
             }, None
 
     except Exception as ex:

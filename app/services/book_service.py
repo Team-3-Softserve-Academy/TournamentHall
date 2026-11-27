@@ -9,8 +9,9 @@ def get_all_lords():
             return [
                 {
                     "id": lord.id,
+                    "role": "Lord",
                     "full_name": lord.full_name,
-                    "home": lord.home,
+                    "house": lord.house,
                     "photo_url": lord.photo_url,
                 }
                 for lord in lords
@@ -20,24 +21,24 @@ def get_all_lords():
         return None, f"Database Error: {ex}"
 
 
-def _get_viewer_home(session, role, profile_id):
+def _get_viewer_house(session, role, profile_id):
     if profile_id is None:
         return None
 
     if role == "Knight":
         viewer = KnightRepository(session).get_by_id(int(profile_id))
-        return viewer.home if (viewer and viewer.home) else None
+        return viewer.house if (viewer and viewer.house) else None
 
     if role == "Lord":
         viewer = LordRepository(session).get_by_id(int(profile_id))
-        return viewer.home if (viewer and viewer.home) else None
+        return viewer.house if (viewer and viewer.house) else None
 
     return None
 
 def get_all_knights(current_role, current_profile_id, unlocked_id=None):
     try:
         with Session() as session:
-            viewer_home = _get_viewer_home(session, current_role, current_profile_id)
+            viewer_house = _get_viewer_house(session, current_role, current_profile_id)
             knights = KnightRepository(session).get_all()
 
             result = []
@@ -48,11 +49,11 @@ def get_all_knights(current_role, current_profile_id, unlocked_id=None):
                     and knight.id == int(current_profile_id)
                 )
                 is_same_house = (
-                    viewer_home is not None
-                    and knight.home is not None
-                    and viewer_home == knight.home
+                    viewer_house is not None
+                    and knight.house is not None
+                    and viewer_house == knight.house
                 )
-                can_see_stats = (
+                can_view_stats = (
                         is_owner
                         or is_same_house
                         or bool(knight.is_white_knight)
@@ -61,15 +62,16 @@ def get_all_knights(current_role, current_profile_id, unlocked_id=None):
 
                 result.append({
                     "id": knight.id,
+                    "role": "Knight",
                     "full_name": knight.full_name,
-                    "home": knight.home,
+                    "house": knight.house,
                     "motto": knight.motto,
                     "photo_url": knight.photo_url,
                     "is_white_knight": bool(knight.is_white_knight),
-                    "stats_visible": can_see_stats,
-                    "strength": knight.strength if can_see_stats else None,
-                    "protection": knight.protection if can_see_stats else None,
-                    "speed": knight.speed if can_see_stats else None,
+                    "can_view_stats": can_view_stats,
+                    "strength": knight.strength if can_view_stats else None,
+                    "dexterity": knight.dexterity if can_view_stats else None,
+                    "protection": knight.protection if can_view_stats else None,
                 })
 
             return result, None

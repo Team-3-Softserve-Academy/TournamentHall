@@ -11,11 +11,11 @@ class KnightRepository:
             login, 
             password_hash,
             photo_url,
-            home,
+            house,
             motto,
             strength,
             protection,
-            speed,
+            dexterity,
             is_white_knight
         ):
         knight_user=User(
@@ -29,11 +29,11 @@ class KnightRepository:
         knight_role=Knight(
             full_name=full_name, 
             photo_url=photo_url,
-            home=home,
+            house=house,
             motto=motto,
             strength=strength,
             protection=protection,
-            speed=speed,
+            dexterity=dexterity,
             user_id=knight_user.id,
             is_white_knight=is_white_knight
         )

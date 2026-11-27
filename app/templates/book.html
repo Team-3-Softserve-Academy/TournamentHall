@@ -31,7 +31,7 @@
       <article class="knight-pedestal">
          {% set default_avatar = url_for('static', filename='images/lord.png' if entry.role|lower == 'lord' else 'images/knight.png') %}
        <div class="pedestal-photo">
-              <img src="{{ entry.image_url or default_avatar }}" alt="{{ entry.name }}"/>
+              <img src="{{ entry.photo_url or default_avatar }}" alt="{{ entry.full_name }}"/>
             <span class="role-pill">{{ entry.role|title }}</span>
         </div>
 
@@ -40,7 +40,7 @@
         </div>
 
         <div class="pedestal-name-box">
-          <h2 class="pedestal-name">{{ entry.name }}</h2>
+          <h2 class="pedestal-name">{{ entry.full_name }}</h2>
         </div>
 
         {% if entry.role != 'Lord' %}
@@ -49,7 +49,7 @@
                 <div class="stats-row">
                     <div class="stat-cell"><span>STR</span><strong>{{ entry.strength }}</strong></div>
                     <div class="stat-cell"><span>DEX</span><strong>{{ entry.dexterity }}</strong></div>
-                    <div class="stat-cell"><span>CON</span><strong>{{ entry.constitution }}</strong></div>
+                    <div class="stat-cell"><span>PRO</span><strong>{{ entry.protection }}</strong></div>
                 </div>
             {% else %}
                 <p class="stats-restricted">
