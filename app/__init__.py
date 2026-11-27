@@ -1,11 +1,10 @@
-from flask import Flask, render_template, jsonify, redirect, url_for
+from flask import Flask, render_template, redirect, url_for
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt, unset_jwt_cookies
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app.config import Config
 from app.blueprints.auth import auth_bp
 from app.blueprints.knight_key import knight_key_bp
 from app.blueprints.books import books_bp
-from app.utils.answer_type import wants_json
 
 jwt = JWTManager()
 
@@ -16,10 +15,6 @@ def create_app():
     jwt.init_app(app)
 
     def _auth_failed(message):
-        if wants_json():
-            response = jsonify({"error": message})
-            unset_jwt_cookies(response)
-            return response, 401
         response = redirect(url_for('auth.login'))
         unset_jwt_cookies(response)
         return response
