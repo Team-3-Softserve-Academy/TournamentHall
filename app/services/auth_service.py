@@ -10,8 +10,7 @@ def register_user(data: dict):
     role = (data.get('role') or "").strip()
     login = (data.get('login') or "").strip()
     password = data.get('password') or ""
-    #TODO ROOT-57: full_name field in registration form
-    full_name = (data.get("full_name") or login).strip()
+    full_name = (data.get("full_name") or "").strip()
 
     if not login or not password:
         return None, "Login and password are required."
@@ -21,6 +20,11 @@ def register_user(data: dict):
 
     if has_forbidden_chars(login) or has_forbidden_chars(password):
         return None, "Forbidden chars in entry fields."
+
+    if not full_name:
+        return None, "Full name cannot be empty."
+    if has_forbidden_chars(full_name):
+        return None, "Forbidden chars in full name."
 
     try:
         with Session.begin() as session:
@@ -34,20 +38,11 @@ def register_user(data: dict):
             #TODO ROOT-63: Photo upload
 
             if role == "CommonFolk":
-                if not full_name:
-                    return None, "Full name cannot be empty."
-                if has_forbidden_chars(full_name):
-                    return None, "Forbidden chars in full name."
-
                 profile = CommonFolkRepository(session).create(full_name=full_name, login=login, password_hash=hashed_password)
 
             elif role == "Lord":
                 house = (data.get("house") or "").strip()
 
-                if not full_name:
-                    return None, "Full name cannot be empty."
-                if has_forbidden_chars(full_name):
-                    return None, "Forbidden chars in full name."
                 if not house:
                     return None, "House cannot be empty."
                 if has_forbidden_chars(house):
@@ -58,12 +53,8 @@ def register_user(data: dict):
             elif role == "Knight":
                 house = (data.get("house") or "").strip()
                 motto = (data.get("motto") or "").strip()
-                is_white_knight = bool(data.get("is_white_knight", False))
+                is_white_knight = (data.get("is_white_knight") == "on")
 
-                if not full_name:
-                    return None, "Full name cannot be empty."
-                if has_forbidden_chars(full_name):
-                    return None, "Forbidden chars in full name."
                 if not house:
                     return None, "House cannot be empty."
                 if has_forbidden_chars(house):
