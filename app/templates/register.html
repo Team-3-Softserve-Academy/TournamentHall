@@ -81,6 +81,11 @@
                 <p class="field-helper">Use at least 8 characters, including a number.</p>
                 {% endif %}
             </div>
+
+            <div class="field-group {% if errors.get('full_name') %}has-error{% endif %}">
+                <label for="full_name" class="field-label">Full name</label>
+                <input id="full_name" name="full_name" type="text" class="field-input" placeholder="Ser Duncan the Tall" value="{{ form_data.get('full_name', '') }}" required/>
+            </div>
         </div>
 
         <!-- PROFILE -->
@@ -142,6 +147,11 @@
                         </div>
                     </div>
                     {% endfor %}
+                </div>
+
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="is_white_knight" name="is_white_knight" value="on" {% if form_data.get('is_white_knight') %}checked{% endif %}/>
+                    <label class="form-check-label" for="is_white_knight">I am a White Knight (stats visible to everyone)</label>
                 </div>
             </div>
         </div>
